@@ -402,7 +402,10 @@ function PaymentReference({ lang, ackNumber, getVerify, registrationId, status, 
       <input id="edu-payment-ref" value={reference} onChange={e => setReference(e.target.value)} placeholder="pay_XXXXXXXXXXXX" maxLength={60} className={`${inputClass} mt-0 sm:flex-1`} />
       <Button type="submit" disabled={state.busy || reference.trim().length < 6} className="h-11 rounded-full bg-edu-royal px-6 text-edu-paper hover:bg-edu-royal/90">{state.busy ? "…" : lang === "en" ? "Send payment ID" : "आईडी भेजें"}</Button>
     </form>
-    {state.error && <p role="alert" className="mt-2 text-xs font-semibold text-destructive">{state.error}</p>}
+    {state.error && <div role="alert" className="mt-2 space-y-1">
+      <p className="text-xs font-semibold text-destructive">{state.error}</p>
+      <p className="text-sm font-semibold text-edu-navy">{lang === "en" ? "If you have already paid, don't worry — your payment is safe. Our team will contact you soon." : "अगर आपने भुगतान कर दिया है तो चिंता न करें — आपका भुगतान सुरक्षित है। हमारी टीम जल्द ही आपसे संपर्क करेगी।"}</p>
+    </div>}
     <p className="mt-2 text-xs text-edu-ink/60">{lang === "en" ? "Find it in the Zoho payment receipt email/SMS after paying." : "भुगतान के बाद Zoho की रसीद ईमेल/SMS में मिलेगी।"}</p>
   </div>;
 }
