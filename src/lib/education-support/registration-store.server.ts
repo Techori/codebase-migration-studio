@@ -260,7 +260,8 @@ export async function lookupForEdit(verify: EducationLookup) {
   const values = found.source === "database" ? dbRowToValues(found.row) : found.sheet.record.values;
   const formStatus = found.source === "database" ? found.row.form_status : /^completed$/i.test(found.sheet.record.meta.formStatus) ? "completed" : "started";
   const hasPrivateDetails = found.source === "database" ? Boolean(found.row.private_details_ciphertext) : Boolean(found.sheet.record.meta.privateCiphertext);
-  return { ackNumber: verify.ackNumber, paymentStatus, formStatus, hasPrivateDetails, source: found.source, applicationType: String(values.applicationType) as ApplicationType, fee: applicationTypes[String(values.applicationType) as ApplicationType]?.fee ?? 0, values: editableValues(values) };
+  const ackNumber = found.source === "database" ? found.row.ack_number : found.sheet.record.meta.ackNumber;
+  return { ackNumber, paymentStatus, formStatus, hasPrivateDetails, source: found.source, applicationType: String(values.applicationType) as ApplicationType, fee: applicationTypes[String(values.applicationType) as ApplicationType]?.fee ?? 0, values: editableValues(values) };
 }
 
 /** Saves what the student has entered so far (database; the Google Sheet takes it whenever the database fails). */
