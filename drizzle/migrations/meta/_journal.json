@@ -15,6 +15,13 @@
       "when": 1794636440025,
       "tag": "0001_rebuild_functions_triggers_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794636465103,
+      "tag": "0002_education_ack_default",
+      "breakpoints": true
     }
   ]
 }
