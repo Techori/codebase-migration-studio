@@ -328,7 +328,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
       </div>
       {current.key === "review"
         ? <Button type="button" disabled={sending} onClick={() => void submit()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : isAdmin ? "Save changes" : t("submit")}</Button>
-        : <Button type="button" disabled={sending || paymentMissing} onClick={() => void next()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : current.key === "basic" && !session && !isAdmin ? (lang === "en" ? "Get Registration ID" : "पावती संख्या प्राप्त करें") : t("next")}<ArrowRight className="h-4 w-4" /></Button>}
+        : <Button type="button" disabled={sending || paymentMissing} onClick={() => void next()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : current.key === "basic" && !session && !isAdmin ? (lang === "en" ? "Get Registration ID" : "पंजीकरण आईडी प्राप्त करें") : t("next")}<ArrowRight className="h-4 w-4" /></Button>}
     </div>
   </div>;
 }
@@ -345,7 +345,7 @@ function ReopenPanel({ lang, open, setOpen, onOpened }: { lang: EduLang; open: b
     catch (err) { setError(err instanceof Error ? err.message : "Please try again."); }
     finally { setBusy(false); }
   }
-  if (!open) return <button type="button" onClick={() => setOpen(true)} className="mb-5 inline-flex items-center gap-2 rounded-full border border-edu-navy/20 px-4 py-2 text-sm font-bold text-edu-navy hover:bg-edu-sky"><FolderOpen className="h-4 w-4" aria-hidden="true" />{lang === "en" ? "Already registered? Open your form" : "पावती संख्या है? अपना फ़ॉर्म खोलें"}</button>;
+  if (!open) return <button type="button" onClick={() => setOpen(true)} className="mb-5 inline-flex items-center gap-2 rounded-full border border-edu-navy/20 px-4 py-2 text-sm font-bold text-edu-navy hover:bg-edu-sky"><FolderOpen className="h-4 w-4" aria-hidden="true" />{lang === "en" ? "Already registered? Open your form" : "पहले से पंजीकृत? अपना फ़ॉर्म खोलें"}</button>;
   return <form onSubmit={e => void go(e)} className="mb-6 grid gap-3 rounded-2xl border border-edu-royal/30 bg-edu-sky/60 p-4 sm:grid-cols-3">
     <p className="text-sm font-bold text-edu-navy sm:col-span-3">{lang === "en" ? "Open your registration" : "अपना पंजीकरण खोलें"}</p>
     <label className="text-sm font-semibold text-edu-ink">{lang === "en" ? "Acknowledgement number or Registration ID" : "पावती संख्या या पंजीकरण आईडी"}<input required value={ack} onChange={e => setAck(e.target.value)} maxLength={20} className={inputClass} /></label>
