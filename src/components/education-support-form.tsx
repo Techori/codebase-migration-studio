@@ -29,8 +29,8 @@ const inputClass = "mt-1.5 w-full rounded-lg border border-edu-navy/20 bg-edu-pa
 /** A registration that already has an acknowledgement number. */
 /** Index of the payment step for students (basic details come first). */
 const paymentStep = 1;
-type Session = { verify: EducationLookup; paymentStatus: string; hasPrivateDetails: boolean; createdAt: string; paymentReference?: string };
-type Done = { ackNumber: string; createdAt: string; paymentStatus: string; applicationType: ApplicationType };
+type Session = { verify: EducationLookup; paymentStatus: string; hasPrivateDetails: boolean; createdAt: string; paymentReference?: string; registrationId?: string | null };
+type Done = { ackNumber: string; registrationId?: string | null; createdAt: string; paymentStatus: string; applicationType: ApplicationType };
 type Referral = { code: string; name: string; mobile: string; email: string; type: string };
 
 export type EducationAdminEdit = { id: string; values: Values; onDone: () => void; onCancel: () => void };
@@ -107,7 +107,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
       if (cancelled) return;
       try { localStorage.removeItem(PAYMENT_RETURN_KEY); } catch { /* ignore */ }
       const ack = r?.ackNumber;
-      setSession(s => s ? { ...s, paymentStatus: "reference_submitted", paymentReference: id, verify: ack ? { ...s.verify, ackNumber: ack } : s.verify } : s);
+      setSession(s => s ? { ...s, paymentStatus: "reference_submitted", paymentReference: id, registrationId: r?.registrationId ?? s.registrationId ?? null, verify: ack ? { ...s.verify, ackNumber: ack } : s.verify } : s);
       setStep(n => n === 1 ? 2 : n);
       setNotice("");
     }).catch(err => { if (!cancelled) setNotice((lang === "en" ? `Payment ID ${id} could not be saved: ` : `पेमेंट आईडी ${id} सेव नहीं हुई: `) + (err instanceof Error ? err.message : "")); });
@@ -178,7 +178,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
       if (adminEdit) { await adminSave({ data: { id: adminEdit.id, changePrivateDetails, values } }); adminEdit.onDone(); return; }
       if (!session) { goTo(0); return; }
       const r = await submitFull({ data: { verify: session.verify, changePrivateDetails, values } });
-      setDone({ ackNumber: r.ackNumber, createdAt: r.createdAt || session.createdAt, paymentStatus: r.paymentStatus, applicationType: r.applicationType });
+      setDone({ ackNumber: r.ackNumber, registrationId: session.registrationId ?? null, createdAt: r.createdAt || session.createdAt, paymentStatus: r.paymentStatus, applicationType: r.applicationType });
       localStorage.removeItem(DRAFT_KEY);
       document.getElementById("registration-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (e) { fail(e); } finally { setSending(false); }
@@ -213,12 +213,14 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
   return <div id="registration-form" className="scroll-mt-6 rounded-3xl border border-edu-navy/10 bg-edu-paper p-4 shadow-[0_20px_60px_-30px_rgba(11,31,75,0.35)] sm:p-8">
     {!isAdmin && !session && step === 0 && <ReopenPanel lang={lang} open={reopen} setOpen={setReopen} onOpened={(r, verify) => {
       setValues({ ...emptyValues(), ...r.values, changePrivateDetails: false });
-      setSession({ verify, paymentStatus: r.paymentStatus, hasPrivateDetails: r.hasPrivateDetails, createdAt: "" });
+      setSession({ verify, paymentStatus: r.paymentStatus, hasPrivateDetails: r.hasPrivateDetails, createdAt: "", registrationId: r.registrationId ?? null });
       setReopen(false);
       goTo(paymentRequiredBlocker(r.paymentStatus, "student") ? paymentStep : firstDetailsStep);
     }} />}
     {session && <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-edu-sky px-4 py-3 text-sm text-edu-navy">
-      <span>{isTemporaryRegistrationId(session.verify.ackNumber) ? (lang === "en" ? "Registration ID" : "पंजीकरण आईडी") : (lang === "en" ? "Acknowledgement number" : "पावती संख्या")}: <strong className="select-all">{session.verify.ackNumber}</strong></span>
+      {isTemporaryRegistrationId(session.verify.ackNumber)
+        ? <span>{lang === "en" ? "Your form is saved on this device. Your Registration ID and acknowledgement number are issued after you share your payment ID." : "आपका फ़ॉर्म इस डिवाइस पर सेव है। पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी।"}</span>
+        : <IssuedNumbers lang={lang} registrationId={session.registrationId} ackNumber={session.verify.ackNumber} />}
       <button type="button" onClick={resetAll} className="text-xs font-semibold underline">{lang === "en" ? "Start a new registration" : "नया पंजीकरण शुरू करें"}</button>
     </div>}
     {isAdmin && <p className="mb-4 rounded-lg bg-edu-sky px-3 py-2 text-sm font-semibold text-edu-navy">Editing as admin</p>}
@@ -252,16 +254,16 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
           <p className="mt-3 text-xs leading-relaxed text-edu-ink/70">{lang === "en" ? "Scholarship amounts are maximum potential awards, not guaranteed payments. Final eligibility and amounts depend on the selection criteria and the official decision." : "छात्रवृत्ति राशि अधिकतम संभावित राशि है, गारंटीशुदा भुगतान नहीं। अंतिम पात्रता और राशि चयन मानदंड और आधिकारिक निर्णय पर निर्भर है।"}</p>
         </fieldset>
         {referral && <p className="rounded-lg bg-edu-sky px-3 py-2 text-sm text-edu-navy sm:col-span-2">{lang === "en" ? `Referred by ${referral.name || referral.code}` : `${referral.name || referral.code} द्वारा रेफ़र किया गया`}</p>}
-        {!session && !isAdmin && <p className="text-xs text-edu-ink/70 sm:col-span-2">{lang === "en" ? "When you continue, you get a Registration ID. Keep it with your date of birth and state to reopen this form later. Your acknowledgement number is issued after you share your payment ID." : "आगे बढ़ने पर आपको पंजीकरण आईडी मिलेगी। बाद में फ़ॉर्म खोलने के लिए इसे अपनी जन्म तिथि और राज्य के साथ रखें। पेमेंट आईडी भेजने के बाद आपको पावती संख्या मिलेगी।"}</p>}
+        {!session && !isAdmin && <p className="text-xs text-edu-ink/70 sm:col-span-2">{lang === "en" ? "Your Registration ID and acknowledgement number are issued after you pay the registration fee and share your payment ID. Until then your form stays saved on this device." : "पंजीकरण शुल्क भरकर पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी। तब तक आपका फ़ॉर्म इसी डिवाइस पर सेव रहेगा।"}</p>}
       </>}
 
       {current.key === "payment" && session && appType && <div className="space-y-5 sm:col-span-2">
         <div className="rounded-2xl bg-edu-navy p-5 text-edu-paper">
           <p className="text-sm font-semibold">{lang === "en" ? applicationTypes[appType].en : applicationTypes[appType].hi} · ₹{applicationTypes[appType].fee}</p>
           {paymentStatus === "pending" && <div className="mt-4"><PaymentOptionButton embed prefill={{ name: String(values["studentName"] ?? ""), email: String(values["email"] ?? ""), mobile: String(values["mobile"] ?? "") }} optionKey={educationPaymentKey(appType)} fallbackLink={applicationTypes[appType].paymentLink} label={lang === "en" ? `Pay ₹${applicationTypes[appType].fee} securely` : `₹${applicationTypes[appType].fee} सुरक्षित रूप से भरें`} className="inline-flex h-11 items-center gap-2 rounded-full bg-edu-paper px-6 text-sm font-black text-edu-navy hover:bg-edu-sky" /></div>}
-          <p className="mt-3 text-xs text-edu-paper/75">{isTemporaryRegistrationId(session.verify.ackNumber) ? (lang === "en" ? `Please mention your Registration ID ${session.verify.ackNumber} and the same email/mobile on the payment page if asked. Your acknowledgement number is issued after you share the payment ID.` : `पूछे जाने पर भुगतान पेज पर अपनी पंजीकरण आईडी ${session.verify.ackNumber} और वही ईमेल/मोबाइल डालें। पेमेंट आईडी भेजने के बाद पावती संख्या मिलेगी।`) : (lang === "en" ? `Acknowledgement number: ${session.verify.ackNumber}` : `पावती संख्या: ${session.verify.ackNumber}`)}</p>
+          <p className="mt-3 text-xs text-edu-paper/75">{isTemporaryRegistrationId(session.verify.ackNumber) ? (lang === "en" ? "Use the same email/mobile on the payment page. Your Registration ID and acknowledgement number are issued after you share the payment ID." : "भुगतान पेज पर वही ईमेल/मोबाइल डालें। पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी।") : <>{session.registrationId && <>{lang === "en" ? "Registration ID" : "पंजीकरण आईडी"}: {session.registrationId} · </>}{lang === "en" ? "Acknowledgement number" : "पावती संख्या"}: {session.verify.ackNumber}</>}</p>
         </div>
-        <PaymentReference key={session.paymentReference ?? ""} lang={lang} verify={session.verify} status={paymentStatus} initial={session.paymentReference ?? ""} onSaved={(ref, ack) => setSession({ ...session, paymentStatus: "reference_submitted", paymentReference: ref, verify: ack ? { ...session.verify, ackNumber: ack } : session.verify })} />
+        <PaymentReference key={session.paymentReference ?? ""} lang={lang} verify={session.verify} registrationId={session.registrationId ?? null} status={paymentStatus} initial={session.paymentReference ?? ""} onSaved={(ref, ack, regId) => setSession({ ...session, paymentStatus: "reference_submitted", paymentReference: ref, registrationId: regId ?? session.registrationId ?? null, verify: ack ? { ...session.verify, ackNumber: ack } : session.verify })} />
         <p className="text-xs text-edu-ink/70">{lang === "en" ? "After paying, the payment ID is filled in automatically. If it does not appear, type it in above. You can go to the next step only after the payment ID is shared. Your form is complete only after the final step." : "भुगतान के बाद पेमेंट आईडी अपने आप भर जाएगी। न दिखे तो ऊपर लिख दें। पेमेंट आईडी भेजने के बाद ही आप अगले चरण पर जा सकेंगे। अंतिम चरण के बाद ही फ़ॉर्म पूरा होगा।"}</p>
       </div>}
 
@@ -328,7 +330,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
       </div>
       {current.key === "review"
         ? <Button type="button" disabled={sending} onClick={() => void submit()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : isAdmin ? "Save changes" : t("submit")}</Button>
-        : <Button type="button" disabled={sending || paymentMissing} onClick={() => void next()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : current.key === "basic" && !session && !isAdmin ? (lang === "en" ? "Get Registration ID" : "पंजीकरण आईडी प्राप्त करें") : t("next")}<ArrowRight className="h-4 w-4" /></Button>}
+        : <Button type="button" disabled={sending || paymentMissing} onClick={() => void next()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : current.key === "basic" && !session && !isAdmin ? (lang === "en" ? "Save and continue to payment" : "सेव करके भुगतान पर जाएँ") : t("next")}<ArrowRight className="h-4 w-4" /></Button>}
     </div>
   </div>;
 }
@@ -359,19 +361,29 @@ function ReopenPanel({ lang, open, setOpen, onOpened }: { lang: EduLang; open: b
   </form>;
 }
 
-function PaymentReference({ lang, verify, status, initial, onSaved }: { lang: EduLang; verify: EducationLookup; status: string; initial: string; onSaved: (reference: string, ackNumber: string | null) => void }) {
+function IssuedNumbers({ lang, registrationId, ackNumber }: { lang: EduLang; registrationId?: string | null | undefined; ackNumber: string }) {
+  return <span className="flex flex-wrap gap-x-4 gap-y-1">
+    {registrationId && <span>{lang === "en" ? "Registration ID" : "पंजीकरण आईडी"}: <strong className="select-all">{registrationId}</strong></span>}
+    <span>{lang === "en" ? "Acknowledgement number" : "पावती संख्या"}: <strong className="select-all">{ackNumber}</strong></span>
+  </span>;
+}
+
+function PaymentReference({ lang, verify, registrationId, status, initial, onSaved }: { lang: EduLang; verify: EducationLookup; registrationId: string | null; status: string; initial: string; onSaved: (reference: string, ackNumber: string | null, registrationId: string | null) => void }) {
   const saveRef = viaHome(useServerFn(submitEducationPaymentReference), "payment");
   const [reference, setReference] = useState(initial);
   const [state, setState] = useState<{ busy: boolean; error?: string }>({ busy: false });
   if (status === "paid") return <p className="rounded-2xl border border-edu-navy/10 bg-edu-sky/60 p-5 text-sm text-edu-navy">{lang === "en" ? "Payment confirmed." : "भुगतान की पुष्टि हो गई।"}</p>;
   async function send(e: React.FormEvent) {
     e.preventDefault(); setState({ busy: true });
-    try { const r = await saveRef({ data: { verify, reference: reference.trim() } }); setState({ busy: false }); onSaved(reference.trim(), r?.ackNumber ?? null); }
+    try { const r = await saveRef({ data: { verify, reference: reference.trim() } }); setState({ busy: false }); onSaved(reference.trim(), r?.ackNumber ?? null, r?.registrationId ?? null); }
     catch (err) { setState({ busy: false, error: err instanceof Error ? err.message : "Please try again." }); }
   }
   return <div className="rounded-2xl border border-edu-navy/10 bg-edu-sky/60 p-5">
     <p className="text-sm font-semibold text-edu-navy">{lang === "en" ? "Share your payment ID" : "अपनी पेमेंट आईडी भेजें"}</p>
-    {status === "reference_submitted" && !isTemporaryRegistrationId(verify.ackNumber) && <p className="mt-2 text-sm font-semibold text-edu-navy">{lang === "en" ? "Your acknowledgement number" : "आपकी पावती संख्या"}: <strong className="select-all text-edu-royal">{verify.ackNumber}</strong></p>}
+    {status === "reference_submitted" && !isTemporaryRegistrationId(verify.ackNumber) && <div className="mt-2 space-y-1 text-sm font-semibold text-edu-navy">
+      {registrationId && <p>{lang === "en" ? "Your Registration ID" : "आपकी पंजीकरण आईडी"}: <strong className="select-all text-edu-royal">{registrationId}</strong></p>}
+      <p>{lang === "en" ? "Your acknowledgement number" : "आपकी पावती संख्या"}: <strong className="select-all text-edu-royal">{verify.ackNumber}</strong></p>
+    </div>}
     {status === "reference_submitted" && <p className="mt-2 text-sm text-edu-ink">{lang === "en" ? "Payment ID received. Our team will match your payment and confirm it. You can send a corrected ID below." : "पेमेंट आईडी मिल गई। हमारी टीम मिलान करके पुष्टि करेगी। ज़रूरत हो तो नीचे सही आईडी भेजें।"}</p>}
     <form onSubmit={e => void send(e)} className="mt-3 flex flex-col gap-2 sm:flex-row">
       <label className="sr-only" htmlFor="edu-payment-ref">Payment ID</label>
@@ -395,7 +407,7 @@ function RegistrationDone({ lang, done, values, onNew }: { lang: EduLang; done: 
       ackNumber: done.ackNumber, studentName: String(values["studentName"]), createdAt: done.createdAt || new Date().toISOString(),
       category: category === "school" ? "School student" : category === "ug" ? "Undergraduate (UG)" : "Postgraduate (PG)",
       classOrCourse: category === "school" ? `Class ${values["currentClass"]}` : String(values["courseName"]), sector: String(values["educationSector"]),
-      applicationType: done.applicationType, coordinatorName: values["withoutCoordinator"] ? "" : String(values["coordinatorName"]), paymentStatus: payStatus,
+      applicationType: done.applicationType, registrationId: done.registrationId ?? null, coordinatorName: values["withoutCoordinator"] ? "" : String(values["coordinatorName"]), paymentStatus: payStatus,
     })).then(blob => { if (cancelled) return; url = URL.createObjectURL(blob); setPdfUrl(url); });
     return () => { cancelled = true; if (url) URL.revokeObjectURL(url); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -405,6 +417,7 @@ function RegistrationDone({ lang, done, values, onNew }: { lang: EduLang; done: 
     <h3 className="mt-3 text-2xl font-black text-edu-navy">{lang === "en" ? "Registration submitted" : "पंजीकरण जमा हो गया"}</h3>
     <p className="mt-2 text-sm text-edu-ink/75">{lang === "en" ? "Your acknowledgement number:" : "आपकी पावती संख्या:"}</p>
     <p className="mt-1 select-all break-all text-2xl font-black text-edu-royal sm:text-3xl">{done.ackNumber}</p>
+    {done.registrationId && <p className="mt-2 text-sm text-edu-ink/75">{lang === "en" ? "Registration ID" : "पंजीकरण आईडी"}: <strong className="select-all text-edu-navy">{done.registrationId}</strong></p>}
     <p className="mt-2 text-xs text-edu-ink/60">{lang === "en" ? "Save this number. With your date of birth and state you can reopen and edit the form until payment is confirmed." : "यह संख्या सुरक्षित रखें। जन्म तिथि और राज्य के साथ आप भुगतान की पुष्टि तक फ़ॉर्म खोलकर बदल सकते हैं।"}</p>
     {done.paymentStatus === "pending" && app && <div className="mt-6 rounded-2xl bg-edu-navy p-5 text-edu-paper">
       <p className="text-sm font-semibold">{lang === "en" ? "Registration fee still to pay" : "पंजीकरण शुल्क अभी बाकी है"} · ₹{app.fee}</p>

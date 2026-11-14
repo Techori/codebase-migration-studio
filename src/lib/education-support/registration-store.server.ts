@@ -136,7 +136,7 @@ export async function savePaymentReference(data: { verify: EducationLookup; refe
         catch (e) { console.error("Education checks after payment ID failed", e); }
       }
       try { await syncRowToSheet(row); } catch (e) { console.error("Payment ID could not be copied to the Google Sheet.", e); }
-      return { ok: true, ackNumber: row.ack_number as string | null };
+      return { ok: true, ackNumber: row.ack_number as string | null, registrationId: (row.registration_id && row.registration_id !== row.ack_number ? row.registration_id : null) as string | null };
     } catch (e) {
       if (e instanceof VisitorError) throw e;
       console.error("Payment ID could not be saved in the database; saving it in the Google Sheet.", e);
@@ -144,7 +144,7 @@ export async function savePaymentReference(data: { verify: EducationLookup; refe
   }
   await writeToSheet(found, new Date(), r => ({ ...r, meta: { ...r.meta, paymentReference: data.reference, paymentStatus: "reference_submitted" } }), "The payment ID could not be saved. Please try again.");
   // Saved only in the backup sheet: the acknowledgement number is issued once the database takes this payment ID.
-  return { ok: true, ackNumber: null as string | null };
+  return { ok: true, ackNumber: null as string | null, registrationId: null as string | null };
 }
 
 /**
@@ -261,7 +261,8 @@ export async function lookupForEdit(verify: EducationLookup) {
   const formStatus = found.source === "database" ? found.row.form_status : /^completed$/i.test(found.sheet.record.meta.formStatus) ? "completed" : "started";
   const hasPrivateDetails = found.source === "database" ? Boolean(found.row.private_details_ciphertext) : Boolean(found.sheet.record.meta.privateCiphertext);
   const ackNumber = found.source === "database" ? found.row.ack_number : found.sheet.record.meta.ackNumber;
-  return { ackNumber, paymentStatus, formStatus, hasPrivateDetails, source: found.source, applicationType: String(values.applicationType) as ApplicationType, fee: applicationTypes[String(values.applicationType) as ApplicationType]?.fee ?? 0, values: editableValues(values) };
+  const registrationId = found.source === "database" && found.row.registration_id && found.row.registration_id !== found.row.ack_number ? found.row.registration_id : null;
+  return { ackNumber, registrationId, paymentStatus, formStatus, hasPrivateDetails, source: found.source, applicationType: String(values.applicationType) as ApplicationType, fee: applicationTypes[String(values.applicationType) as ApplicationType]?.fee ?? 0, values: editableValues(values) };
 }
 
 /** Saves what the student has entered so far (database; the Google Sheet takes it whenever the database fails). */
