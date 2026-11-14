@@ -1,9 +1,11 @@
 ## Move into this project (Nov 2026)
 - [x] Code, images and settings brought in; database rebuilt (31 tables, rules, private file folders)
-- [ ] Import existing records and users — waiting on exports from the old project
-- [ ] Original EDUCATION_KYC_ENCRYPTION_KEY — waiting on the owner (needed for bank/Aadhaar details)
-- [ ] Google Sheet backup + its every-few-minutes sync — waiting on Google Sheets connection and sheet ID
-- [ ] Owner request: keep all data in a fresh Google Sheet + Google Drive (maybe Zoho Sheet too), old sheets removed; wants database removed — waiting on owner decision
+- [x] Fresh start chosen by owner — no old records/users imported
+- [x] New scholarship privacy key created (fresh start, nothing old to decrypt)
+- [x] Google Sheet backup + its every-few-minutes sync (runs once the site is published)
+- [x] All forms copied to fresh Google Sheet "RILOYD Website Data" + documents to Drive folder "RILOYD Website Documents" (database kept)
+- [ ] Zoho Sheet copy — optional, no ready connection; only if owner asks
+- [x] Sample scholarship registrations + CRM leads gone; ack counter unused, first real student gets 00001
 - [ ] After publishing: point the scholarship home address (remote.ts HOME_ORIGIN) at the new site; reconnect riloyd.in
 
 # Roadmap
@@ -18,7 +20,7 @@
 - [x] Checked sample registrations, CRM leads and Vercel secret: none exist in this project; numbering already starts at 00001
 - [ ] Scholarship fees (₹149/₹249/₹599) use Zoho Checkout embeds (all three codes received) instead of Razorpay; payment ID auto-filled and shown in step 3
 - [x] Move the project into this Lovable project: pages, images, backend tables, storage and AI features rebuilt; contact form and AI ideas verified
-- [ ] Import existing records and users: waiting on exports from the old project
+- [x] Import existing records and users: dropped — owner chose a fresh start
 - [ ] First admin: sign up at /admin, confirm email, claim admin; then verify admin, CRM, imports and file restore
 
 - [x] Optimize current Young Innovators images without changing artwork; saved 382,522 bytes across responsive variants.
@@ -37,7 +39,7 @@
 - [x] Create requested account, verify confirmed email and activate first-admin through secure claim; signed-in admin tabs and reload verified.
 
 - [x] Audit backend; add approval publishing trigger, complete 14-table diagnostic coverage, server-validated admin eligibility, explicit AI pause reset; authenticated setup reports zero mismatches.
-- [ ] Verify CSV imports, private-file restoration and approval publishing with user records/files; awaiting exported inputs.
+- [x] CSV import/restore of old records: not needed — fresh start (approval publishing still checked once the first admin exists)
 - [x] Review all 29 content route modules and 24 rendered URLs; metadata present, status 200, invalid market 404; add registration canonicals, smaller shared logos and nonblocking logo overrides.
 - [ ] Finish sitemap, published performance and Google indexing checks; waiting for publication/public address.
 

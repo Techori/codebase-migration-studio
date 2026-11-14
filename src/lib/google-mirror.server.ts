@@ -15,7 +15,7 @@ function env(name: string) {
   return v;
 }
 
-async function google<T>(url: string, connectionKey: string, init: { method?: string; body?: BodyInit; contentType?: string } = {}): Promise<T> {
+async function google<T>(url: string, connectionKey: string, init: { method?: string | undefined; body?: BodyInit | undefined; contentType?: string | undefined } = {}): Promise<T> {
   const res = await fetch(url, {
     method: init.method ?? "GET",
     headers: { Authorization: `Bearer ${env("LOVABLE_API_KEY")}`, "X-Connection-Api-Key": connectionKey, ...(init.body ? { "Content-Type": init.contentType ?? "application/json" } : {}) },
@@ -29,7 +29,7 @@ async function google<T>(url: string, connectionKey: string, init: { method?: st
   return res.json() as Promise<T>;
 }
 
-function sheets<T>(path: string, init: { method?: string; body?: unknown } = {}) {
+function sheets<T>(path: string, init: { method?: string | undefined; body?: unknown } = {}) {
   const url = `${SHEETS_URL}/spreadsheets/${env("EDUCATION_SHEET_ID")}${path}`;
   return google<T>(url, env("GOOGLE_SHEETS_API_KEY"), { method: init.method, ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }) });
 }
