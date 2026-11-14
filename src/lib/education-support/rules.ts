@@ -159,7 +159,7 @@ export type EducationPrivateValues = z.infer<typeof educationPrivateSchema>;
 
 /** What a student enters to reopen their registration: acknowledgement number, date of birth and state must all match. */
 export const educationLookupSchema = z.object({
-  ackNumber: z.string().trim().toUpperCase().regex(ackNumberPattern, "Enter your acknowledgement number exactly as shown on your receipt."),
+  ackNumber: z.string().trim().toUpperCase().regex(ackNumberPattern, "Enter your acknowledgement number or Registration ID exactly as shown."),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the date of birth."),
   state: z.string().refine(v => (indianStates as readonly string[]).includes(v), "Select the state."),
 });

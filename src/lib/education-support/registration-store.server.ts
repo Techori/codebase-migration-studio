@@ -22,7 +22,7 @@ async function safeLimit(key: string) {
 }
 const dbNote = (now: Date) => `Database unavailable at ${istTimestamp(now)}; latest answers saved in this sheet`;
 
-const NO_MATCH = "No registration matches these details. Please check your acknowledgement number, date of birth and state.";
+const NO_MATCH = "No registration matches these details. Please check your acknowledgement number or Registration ID, date of birth and state.";
 
 async function admin() { return (await import("@/integrations/supabase/client.server")).supabaseAdmin; }
 async function sha256Hex(value: string) {
@@ -76,7 +76,7 @@ function withBlanks(values: Partial<Record<string, unknown>>): Record<FormFieldK
   return v;
 }
 
-/** Step 1: save basic details and issue the acknowledgement number (database first, Google Sheet always). */
+/** Step 1: save basic details and issue a temporary Registration ID (database first, Google Sheet always); the acknowledgement number follows the payment ID. */
 export async function startRegistration(basic: EducationBasicValues) {
   await safeLimit(basic.email);
   const now = new Date();
@@ -136,14 +136,15 @@ export async function savePaymentReference(data: { verify: EducationLookup; refe
         catch (e) { console.error("Education checks after payment ID failed", e); }
       }
       try { await syncRowToSheet(row); } catch (e) { console.error("Payment ID could not be copied to the Google Sheet.", e); }
-      return { ok: true };
+      return { ok: true, ackNumber: row.ack_number as string | null };
     } catch (e) {
       if (e instanceof VisitorError) throw e;
       console.error("Payment ID could not be saved in the database; saving it in the Google Sheet.", e);
     }
   }
   await writeToSheet(found, new Date(), r => ({ ...r, meta: { ...r.meta, paymentReference: data.reference, paymentStatus: "reference_submitted" } }), "The payment ID could not be saved. Please try again.");
-  return { ok: true };
+  // Saved only in the backup sheet: the acknowledgement number is issued once the database takes this payment ID.
+  return { ok: true, ackNumber: null as string | null };
 }
 
 /**
@@ -152,7 +153,7 @@ export async function savePaymentReference(data: { verify: EducationLookup; refe
  */
 async function writeToSheet(found: Located, now: Date, change: (r: SheetRecord) => SheetRecord, failMessage: string) {
   try {
-    const target = found.source === "sheet" ? found.sheet : await findSheetRecord(found.row.ack_number);
+    const target = found.source === "sheet" ? found.sheet : await findSheetFor(found.row);
     const base = target?.record ?? dbRowToSheetRecord((found as { row: Row }).row, { bankLast4: await bankLast4Of((found as { row: Row }).row.private_details_ciphertext) });
     const inDatabase = found.source === "database" || base.meta.savedInDatabase !== "Backup only";
     const next = change(base);
@@ -166,9 +167,20 @@ async function writeToSheet(found: Located, now: Date, change: (r: SheetRecord) 
   }
 }
 
+/** The sheet row for a database row: by acknowledgement number, or by the Registration ID it had before payment. */
+async function findSheetFor(row: Row) {
+  const found = await findSheetRecord(row.ack_number);
+  if (found || !row.registration_id || row.registration_id === row.ack_number) return found;
+  return findSheetRecord(row.registration_id);
+}
+
 async function syncRowToSheet(row: Row, edit?: { at: Date; by: string }) {
   const record = dbRowToSheetRecord(row, { bankLast4: await bankLast4Of(row.private_details_ciphertext), ...(edit ? { editedAt: edit.at, editedBy: edit.by } : {}) });
-  await upsertSheetRecord(record);
+  if (!row.registration_id || row.registration_id === row.ack_number) return upsertSheetRecord(record);
+  // Rewrites the pre-payment row in place so the new acknowledgement number never creates a second sheet row.
+  const found = await findSheetFor(row);
+  if (found) await writeSheetRows([{ ...found, record }]);
+  else await appendSheetRecords([record]);
 }
 
 const sameState = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -179,7 +191,7 @@ async function locate(verify: EducationLookup, opts: { checkSheet?: boolean } = 
   let dbReachable = false;
   try {
     const db = await admin();
-    const { data, error } = await db.from("education_support_registrations").select(`id, ${dbRegistrationColumns}`).eq("ack_number", verify.ackNumber).maybeSingle();
+    const { data, error } = await db.from("education_support_registrations").select(`id, ${dbRegistrationColumns}`).or(`ack_number.eq.${verify.ackNumber},registration_id.eq.${verify.ackNumber}`).maybeSingle();
     if (error) throw error;
     dbReachable = true;
     if (data) {
@@ -201,7 +213,7 @@ async function locate(verify: EducationLookup, opts: { checkSheet?: boolean } = 
 /** If newer answers wait in the sheet (saved while the database was down), copy them into the database first; if that still fails, work from the sheet. */
 async function withPendingSheetUpdate(db: Client, row: Row): Promise<Located> {
   let sheet: Awaited<ReturnType<typeof findSheetRecord>> = null;
-  try { sheet = await findSheetRecord(row.ack_number); } catch { return { source: "database", row }; }
+  try { sheet = await findSheetFor(row); } catch { return { source: "database", row }; }
   if (!sheet || sheet.record.meta.savedInDatabase !== UPDATE_PENDING) return { source: "database", row };
   const applied = await applySheetToDatabase(db, row, sheet.record);
   return applied.ok ? { source: "database", row: applied.row } : { source: "sheet", sheet };
@@ -347,10 +359,11 @@ export async function syncWithSheet() {
   const db = await admin();
   const sheetRows = await readAllSheetRecords();
   const dbAcks = new Set<string>();
+  const renamed = new Map<string, string>(); // pre-payment Registration ID -> acknowledgement number
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await db.from("education_support_registrations").select("ack_number").order("created_at").range(from, from + 999);
+    const { data, error } = await db.from("education_support_registrations").select("ack_number, registration_id").order("created_at").range(from, from + 999);
     if (error) throw new Error("The database could not be read. Please try again.");
-    for (const r of data ?? []) dbAcks.add(r.ack_number);
+    for (const r of data ?? []) { dbAcks.add(r.ack_number); if (r.registration_id && r.registration_id !== r.ack_number) renamed.set(r.registration_id, r.ack_number); }
     if (!data || data.length < 1000) break;
   }
   const marked: typeof sheetRows = [];
@@ -358,17 +371,24 @@ export async function syncWithSheet() {
   let imported = 0;
   let updated = 0;
   const seen = new Set<string>();
-  for (const s of sheetRows) {
+  for (const raw of sheetRows) {
+    const newAck = renamed.get(raw.record.meta.ackNumber);
+    // A row still under its pre-payment Registration ID takes the acknowledgement number issued since.
+    const s = newAck ? { ...raw, record: { ...raw.record, meta: { ...raw.record.meta, ackNumber: newAck } } } : raw;
+    if (newAck && !seen.has(newAck)) marked.push(s);
     const ack = s.record.meta.ackNumber;
     if (seen.has(ack)) continue;
     seen.add(ack);
     if (dbAcks.has(ack) && s.record.meta.savedInDatabase === UPDATE_PENDING) {
       const { data: row } = await db.from("education_support_registrations").select(`id, ${dbRegistrationColumns}`).eq("ack_number", ack).single();
       const applied = row ? await applySheetToDatabase(db, row as Row, s.record) : { ok: false as const, reason: "The database row could not be read." };
-      if (applied.ok) updated++; else skipped.push({ ackNumber: ack, reason: applied.reason });
+      if (applied.ok) { updated++; const i = marked.indexOf(s); if (i >= 0) marked.splice(i, 1); } else skipped.push({ ackNumber: ack, reason: applied.reason });
       continue;
     }
-    if (dbAcks.has(ack)) { if (s.record.meta.savedInDatabase !== "Yes") marked.push({ ...s, record: { ...s.record, meta: { ...s.record.meta, savedInDatabase: "Yes" } } }); continue; }
+    if (dbAcks.has(ack)) {
+      if (s.record.meta.savedInDatabase !== "Yes") { const i = marked.indexOf(s); if (i >= 0) marked.splice(i, 1); marked.push({ ...s, record: { ...s.record, meta: { ...s.record.meta, savedInDatabase: "Yes" } } }); }
+      continue;
+    }
     if (!isBackupAck(ack)) { skipped.push({ ackNumber: ack, reason: "Not a backup number and not found in the database." }); continue; }
     const completed = /^completed$/i.test(s.record.meta.formStatus);
     const parsed = completed
@@ -387,11 +407,13 @@ export async function syncWithSheet() {
       coordinator_id: await coordinatorIdFor(db, values), receipt_token_hash: s.record.meta.receiptHash,
       private_details_ciphertext: s.record.meta.privateCiphertext || null, aadhaar_last_four: s.record.meta.aadhaarLast4 || null,
       payment_status: pay, payment_reference: pay === "reference_submitted" ? s.record.meta.paymentReference || null : null,
-    }).select("id").single();
+    }).select("id, ack_number").single();
     if (error || !inserted) { skipped.push({ ackNumber: ack, reason: error?.code === "23505" ? "Payment ID already used by another registration." : "The database refused this row." }); continue; }
     imported++;
     if (completed) try { const { refreshEducationChecks } = await import("./checks.server"); await refreshEducationChecks(db, inserted.id, { ai: false }); } catch (e) { console.error("Checks after sheet import failed", e); }
-    marked.push({ ...s, record: { ...s.record, meta: { ...s.record.meta, savedInDatabase: "Yes", dbNote: "" } } });
+    // A backup row with a payment ID gets its real acknowledgement number on import.
+    seen.add(inserted.ack_number);
+    marked.push({ ...s, record: { ...s.record, meta: { ...s.record.meta, ackNumber: inserted.ack_number, savedInDatabase: "Yes", dbNote: "" } } });
   }
   await writeSheetRows(marked);
 
