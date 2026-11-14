@@ -3,6 +3,7 @@
 - [ ] Import existing records and users — waiting on exports from the old project
 - [ ] Original EDUCATION_KYC_ENCRYPTION_KEY — waiting on the owner (needed for bank/Aadhaar details)
 - [ ] Google Sheet backup + its every-few-minutes sync — waiting on Google Sheets connection and sheet ID
+- [ ] Owner request: keep all data in a fresh Google Sheet + Google Drive (maybe Zoho Sheet too), old sheets removed; wants database removed — waiting on owner decision
 - [ ] After publishing: point the scholarship home address (remote.ts HOME_ORIGIN) at the new site; reconnect riloyd.in
 
 # Roadmap
