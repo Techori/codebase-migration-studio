@@ -225,6 +225,6 @@
 - [x] Collect scholarship responses into the Google Sheet from every website address, including riloyd.in (published Lovable site receives them; takes effect once riloyd.in rebuilds)
 - [x] Student AI checklist: non-sensitive application details → personalised list of missing information/documents
 - [x] Automatic background sync: sheet-only responses move to the database once it is available, no reopen or admin button
-- [ ] Scholarship: official acknowledgement PDF download right after payment ID; visible in CRM
-- [ ] Admin sign up + /admin login check; check admin screen and CRM leads
-- [ ] Login credentials copy in Google Sheet for backend-down login (needs safety decision)
+- [x] Scholarship: official acknowledgement PDF download right after payment ID; visible in CRM
+- [ ] Admin sign up + /admin login check — blocked: owner must create the first admin account with their own email
+- [x] Login credentials in Google Sheet — declined (unsafe; login cannot work without backend anyway)
