@@ -36,6 +36,13 @@
       "when": 1794640364712,
       "tag": "0004_ack_numbers_per_form_after_payment",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794643429368,
+      "tag": "0005_scope_public_payment_and_fee_reads",
+      "breakpoints": true
     }
   ]
 }
