@@ -7,7 +7,7 @@ export const submitEnquiry = createServerFn({ method: "POST" })
     const { limitSubmission } = await import("./submissions.server");
     await limitSubmission(data.email);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("contact_submissions").insert(data);
-    if (error) throw new Error("Your message could not be saved. Please try again.");
-    return { ok: true };
+    const { data: saved, error } = await supabaseAdmin.from("contact_submissions").insert(data).select("ack_number").single();
+    if (error || !saved) throw new Error("Your message could not be saved. Please try again.");
+    return { ok: true, ackNumber: saved.ack_number };
   });

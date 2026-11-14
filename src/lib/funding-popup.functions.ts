@@ -17,10 +17,9 @@ export type FundingApplication = z.infer<typeof fundingApplicationSchema>;
 export const submitFundingApplication = createServerFn({ method: "POST" })
   .inputValidator((data: FundingApplication) => fundingApplicationSchema.parse(data))
   .handler(async () => {
-    const code = `RIL-${new Date().getUTCFullYear().toString().slice(-2)}-${crypto
-      .randomUUID()
-      .replaceAll("-", "")
-      .slice(0, 8)
-      .toUpperCase()}`;
+    // Acknowledgement number from the Funding Programme counter (form 03); this form has no state question.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: code, error } = await supabaseAdmin.rpc("issue_ack_number", { _form: "03", _state: "" });
+    if (error || !code) throw new Error("Your application could not be sent. Please try again.");
     return { ok: true, applicationCode: code };
   });

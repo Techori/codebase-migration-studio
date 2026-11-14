@@ -21,7 +21,6 @@ export async function limitSubmission(email: string, opts: { failOpen?: boolean;
 export async function storeRegistration(parsed: ReturnType<typeof import("./submission-schemas").validateRegistration>) {
   await limitSubmission(parsed.email);
   const id = crypto.randomUUID();
-  const applicationCode = `RIL-${new Date().getUTCFullYear().toString().slice(-2)}-${id.replaceAll("-", "").slice(0, 12).toUpperCase()}`;
   let documentPath: string | null = null;
   if (parsed.document) {
     const file = parsed.document;
@@ -35,14 +34,15 @@ export async function storeRegistration(parsed: ReturnType<typeof import("./subm
     const { error } = await supabaseAdmin.storage.from("registration-documents").upload(documentPath, bytes, { contentType: file.type, upsert: false });
     if (error) throw new Error("Your document could not be saved. Please try again.");
   }
-  const { error } = await supabaseAdmin.from("registration_applications").insert({
-    id, application_code: applicationCode, category: parsed.category,
+  // The database issues the acknowledgement number (form 05) on insert.
+  const { data: saved, error } = await supabaseAdmin.from("registration_applications").insert({
+    id, category: parsed.category,
     full_name: parsed.fullName, email: parsed.email, phone: parsed.phone,
     details: parsed.details, document_path: documentPath, document_name: parsed.document?.name ?? null,
-  });
-  if (error) {
+  }).select("application_code").single();
+  if (error || !saved) {
     if (documentPath) await supabaseAdmin.storage.from("registration-documents").remove([documentPath]);
     throw new Error("Registration could not be saved. Please try again.");
   }
-  return { ok: true, duplicate: false, applicationCode };
+  return { ok: true, duplicate: false, applicationCode: saved.application_code };
 }
