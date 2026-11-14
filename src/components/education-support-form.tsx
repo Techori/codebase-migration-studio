@@ -100,10 +100,11 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
     return () => { window.removeEventListener("message", onMessage); window.removeEventListener("storage", onStorage); };
   }, [adminEdit]);
   useEffect(() => {
-    if (!returnedId || !session || isAdminEdit || session.paymentStatus === "paid" || session.paymentReference === returnedId) return;
+    if (!returnedId || isAdminEdit || session?.paymentStatus === "paid" || session?.paymentReference === returnedId) return;
+    if (!session && !steps.some((s, i) => s.key === "payment" && i <= step)) return;
     let cancelled = false;
     const id = returnedId;
-    void savePaymentId({ data: { verify: session.verify, reference: id } }).then(r => {
+    void ensureSession().then(s => savePaymentId({ data: { verify: s.verify, reference: id } })).then(r => {
       if (cancelled) return;
       try { localStorage.removeItem(PAYMENT_RETURN_KEY); } catch { /* ignore */ }
       const ack = r?.ackNumber;
@@ -113,7 +114,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
     }).catch(err => { if (!cancelled) setNotice((lang === "en" ? `Payment ID ${id} could not be saved: ` : `पेमेंट आईडी ${id} सेव नहीं हुई: `) + (err instanceof Error ? err.message : "")); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [returnedId, session?.verify.ackNumber]);
+  }, [returnedId, session?.verify.ackNumber, step]);
 
   const dob = String(values["dateOfBirth"] ?? "");
   const minor = /^\d{4}-\d{2}-\d{2}$/.test(dob) && isMinor(dob);
@@ -130,6 +131,18 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
   const goTo = (n: number) => { setStep(n); setFormError(""); document.getElementById("registration-form")?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const fail = (e: unknown) => setFormError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
 
+  // Basic details stay on this device until the payment ID is shared; only then is the registration created online.
+  async function ensureSession(): Promise<Session> {
+    if (session) return session;
+    const basic = educationBasicSchema.safeParse({ ...values, coordinatorCode: String(values["coordinatorCode"] ?? "") });
+    if (!basic.success) throw new Error(basic.error.issues[0]?.message ?? "Please check your basic details.");
+    const r = await start({ data: basic.data });
+    setValues(v => ({ ...v, ...r.values }));
+    const s: Session = { verify: { ackNumber: r.ackNumber, dateOfBirth: basic.data.dateOfBirth, state: basic.data.state }, paymentStatus: "pending", hasPrivateDetails: false, createdAt: r.createdAt };
+    setSession(s);
+    return s;
+  }
+
   async function next() {
     const errs = stepErrors(values, current.fields);
     setErrors(errs);
@@ -138,13 +151,10 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
     if (current.key === "basic" && !isAdmin) {
       const basic = educationBasicSchema.safeParse({ ...values, coordinatorCode: String(values["coordinatorCode"] ?? "") });
       if (!basic.success) { setFormError(basic.error.issues[0]?.message ?? "Please check the form."); return; }
+      if (!session) { goTo(step + 1); return; }
       setSending(true);
       try {
-        if (!session) {
-          const r = await start({ data: basic.data });
-          setValues(v => ({ ...v, ...r.values }));
-          setSession({ verify: { ackNumber: r.ackNumber, dateOfBirth: basic.data.dateOfBirth, state: basic.data.state }, paymentStatus: "pending", hasPrivateDetails: false, createdAt: r.createdAt });
-        } else {
+        {
           const r = await saveProgress({ data: { verify: session.verify, values: withoutPrivate(values) } });
           setSession({ ...session, verify: r.verify });
         }
@@ -217,6 +227,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
       setReopen(false);
       goTo(paymentRequiredBlocker(r.paymentStatus, "student") ? paymentStep : firstDetailsStep);
     }} />}
+    {!isAdmin && !session && step > 0 && <p className="mb-4 rounded-xl bg-edu-sky px-4 py-3 text-sm text-edu-navy">{lang === "en" ? "Your form is saved on this device. Your Registration ID and acknowledgement number are issued after you share your payment ID." : "आपका फ़ॉर्म इस डिवाइस पर सेव है। पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी।"}</p>}
     {session && <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-edu-sky px-4 py-3 text-sm text-edu-navy">
       {isTemporaryRegistrationId(session.verify.ackNumber)
         ? <span>{lang === "en" ? "Your form is saved on this device. Your Registration ID and acknowledgement number are issued after you share your payment ID." : "आपका फ़ॉर्म इस डिवाइस पर सेव है। पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी।"}</span>
@@ -257,13 +268,13 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
         {!session && !isAdmin && <p className="text-xs text-edu-ink/70 sm:col-span-2">{lang === "en" ? "Your Registration ID and acknowledgement number are issued after you pay the registration fee and share your payment ID. Until then your form stays saved on this device." : "पंजीकरण शुल्क भरकर पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी। तब तक आपका फ़ॉर्म इसी डिवाइस पर सेव रहेगा।"}</p>}
       </>}
 
-      {current.key === "payment" && session && appType && <div className="space-y-5 sm:col-span-2">
+      {current.key === "payment" && appType && <div className="space-y-5 sm:col-span-2">
         <div className="rounded-2xl bg-edu-navy p-5 text-edu-paper">
           <p className="text-sm font-semibold">{lang === "en" ? applicationTypes[appType].en : applicationTypes[appType].hi} · ₹{applicationTypes[appType].fee}</p>
           {paymentStatus === "pending" && <div className="mt-4"><PaymentOptionButton embed prefill={{ name: String(values["studentName"] ?? ""), email: String(values["email"] ?? ""), mobile: String(values["mobile"] ?? "") }} optionKey={educationPaymentKey(appType)} fallbackLink={applicationTypes[appType].paymentLink} label={lang === "en" ? `Pay ₹${applicationTypes[appType].fee} securely` : `₹${applicationTypes[appType].fee} सुरक्षित रूप से भरें`} className="inline-flex h-11 items-center gap-2 rounded-full bg-edu-paper px-6 text-sm font-black text-edu-navy hover:bg-edu-sky" /></div>}
-          <p className="mt-3 text-xs text-edu-paper/75">{isTemporaryRegistrationId(session.verify.ackNumber) ? (lang === "en" ? "Use the same email/mobile on the payment page. Your Registration ID and acknowledgement number are issued after you share the payment ID." : "भुगतान पेज पर वही ईमेल/मोबाइल डालें। पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी।") : <>{session.registrationId && <>{lang === "en" ? "Registration ID" : "पंजीकरण आईडी"}: {session.registrationId} · </>}{lang === "en" ? "Acknowledgement number" : "पावती संख्या"}: {session.verify.ackNumber}</>}</p>
+          <p className="mt-3 text-xs text-edu-paper/75">{!session || isTemporaryRegistrationId(session.verify.ackNumber) ? (lang === "en" ? "Use the same email/mobile on the payment page. Your Registration ID and acknowledgement number are issued after you share the payment ID." : "भुगतान पेज पर वही ईमेल/मोबाइल डालें। पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी।") : <>{session.registrationId && <>{lang === "en" ? "Registration ID" : "पंजीकरण आईडी"}: {session.registrationId} · </>}{lang === "en" ? "Acknowledgement number" : "पावती संख्या"}: {session.verify.ackNumber}</>}</p>
         </div>
-        <PaymentReference key={session.paymentReference ?? ""} lang={lang} verify={session.verify} registrationId={session.registrationId ?? null} status={paymentStatus} initial={session.paymentReference ?? ""} onSaved={(ref, ack, regId) => setSession({ ...session, paymentStatus: "reference_submitted", paymentReference: ref, registrationId: regId ?? session.registrationId ?? null, verify: ack ? { ...session.verify, ackNumber: ack } : session.verify })} />
+        <PaymentReference key={session?.paymentReference ?? ""} lang={lang} ackNumber={session?.verify.ackNumber ?? ""} getVerify={async () => (await ensureSession()).verify} registrationId={session?.registrationId ?? null} status={paymentStatus} initial={session?.paymentReference ?? ""} onSaved={(ref, ack, regId) => setSession(s => s ? { ...s, paymentStatus: "reference_submitted", paymentReference: ref, registrationId: regId ?? s.registrationId ?? null, verify: ack ? { ...s.verify, ackNumber: ack } : s.verify } : s)} />
         <p className="text-xs text-edu-ink/70">{lang === "en" ? "After paying, the payment ID is filled in automatically. If it does not appear, type it in above. You can go to the next step only after the payment ID is shared. Your form is complete only after the final step." : "भुगतान के बाद पेमेंट आईडी अपने आप भर जाएगी। न दिखे तो ऊपर लिख दें। पेमेंट आईडी भेजने के बाद ही आप अगले चरण पर जा सकेंगे। अंतिम चरण के बाद ही फ़ॉर्म पूरा होगा।"}</p>
       </div>}
 
@@ -368,21 +379,21 @@ function IssuedNumbers({ lang, registrationId, ackNumber }: { lang: EduLang; reg
   </span>;
 }
 
-function PaymentReference({ lang, verify, registrationId, status, initial, onSaved }: { lang: EduLang; verify: EducationLookup; registrationId: string | null; status: string; initial: string; onSaved: (reference: string, ackNumber: string | null, registrationId: string | null) => void }) {
+function PaymentReference({ lang, ackNumber, getVerify, registrationId, status, initial, onSaved }: { lang: EduLang; ackNumber: string; getVerify: () => Promise<EducationLookup>; registrationId: string | null; status: string; initial: string; onSaved: (reference: string, ackNumber: string | null, registrationId: string | null) => void }) {
   const saveRef = viaHome(useServerFn(submitEducationPaymentReference), "payment");
   const [reference, setReference] = useState(initial);
   const [state, setState] = useState<{ busy: boolean; error?: string }>({ busy: false });
   if (status === "paid") return <p className="rounded-2xl border border-edu-navy/10 bg-edu-sky/60 p-5 text-sm text-edu-navy">{lang === "en" ? "Payment confirmed." : "भुगतान की पुष्टि हो गई।"}</p>;
   async function send(e: React.FormEvent) {
     e.preventDefault(); setState({ busy: true });
-    try { const r = await saveRef({ data: { verify, reference: reference.trim() } }); setState({ busy: false }); onSaved(reference.trim(), r?.ackNumber ?? null, r?.registrationId ?? null); }
+    try { const verify = await getVerify(); const r = await saveRef({ data: { verify, reference: reference.trim() } }); setState({ busy: false }); onSaved(reference.trim(), r?.ackNumber ?? null, r?.registrationId ?? null); }
     catch (err) { setState({ busy: false, error: err instanceof Error ? err.message : "Please try again." }); }
   }
   return <div className="rounded-2xl border border-edu-navy/10 bg-edu-sky/60 p-5">
     <p className="text-sm font-semibold text-edu-navy">{lang === "en" ? "Share your payment ID" : "अपनी पेमेंट आईडी भेजें"}</p>
-    {status === "reference_submitted" && !isTemporaryRegistrationId(verify.ackNumber) && <div className="mt-2 space-y-1 text-sm font-semibold text-edu-navy">
+    {status === "reference_submitted" && ackNumber && !isTemporaryRegistrationId(ackNumber) && <div className="mt-2 space-y-1 text-sm font-semibold text-edu-navy">
       {registrationId && <p>{lang === "en" ? "Your Registration ID" : "आपकी पंजीकरण आईडी"}: <strong className="select-all text-edu-royal">{registrationId}</strong></p>}
-      <p>{lang === "en" ? "Your acknowledgement number" : "आपकी पावती संख्या"}: <strong className="select-all text-edu-royal">{verify.ackNumber}</strong></p>
+      <p>{lang === "en" ? "Your acknowledgement number" : "आपकी पावती संख्या"}: <strong className="select-all text-edu-royal">{ackNumber}</strong></p>
     </div>}
     {status === "reference_submitted" && <p className="mt-2 text-sm text-edu-ink">{lang === "en" ? "Payment ID received. Our team will match your payment and confirm it. You can send a corrected ID below." : "पेमेंट आईडी मिल गई। हमारी टीम मिलान करके पुष्टि करेगी। ज़रूरत हो तो नीचे सही आईडी भेजें।"}</p>}
     <form onSubmit={e => void send(e)} className="mt-3 flex flex-col gap-2 sm:flex-row">
