@@ -106,9 +106,9 @@ function ContactPage() {
     setErrors({});
     setSending(true);
     try {
-      await save({ data: result.data });
+      const saved = await save({ data: result.data });
       element.reset();
-      setMessage("Your enquiry has been received.");
+      setMessage(`Your enquiry has been received. Acknowledgement number: ${saved.ackNumber}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Your enquiry could not be saved. Please try again.");
     } finally { setSending(false); }
