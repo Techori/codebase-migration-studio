@@ -10,7 +10,7 @@ const enquiry: Enquiry = { id: "enquiry-1", name: "Test Contact", email: "test@e
 describe("Submission exports", () => {
   it("includes complete registration details and document name without exposing its private path", () => {
     const fields = new Map(submissionFields(application));
-    expect(fields.get("Application reference")).toBe("RIL-26-TEST");
+    expect(fields.get("Acknowledgement number")).toBe("RIL-26-TEST");
     expect(fields.get("Areas I can mentor on")).toBe("Funding ₹10L");
     expect(fields.get("Additional Expertise")).toBe("Strategy, Funding");
     expect(fields.get("Uploaded document")).toBe("resume.pdf");
