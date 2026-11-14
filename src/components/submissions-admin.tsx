@@ -122,7 +122,7 @@ export function SubmissionsAdmin({ kind }: { kind: "applications" | "enquiries" 
     {message && <p role="status" className="mb-4 text-sm text-primary">{message}</p>}
     <div className="divide-y divide-border border border-border">
       {loading ? <p className="p-6 text-muted-foreground">Loading…</p> : !visible.length ? <p className="p-6 text-muted-foreground">No submissions found.</p> : visible.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
-        <div className="min-w-0"><h3 className="font-bold">{"full_name" in row ? row.full_name : row.name}</h3><p className="break-all text-sm text-muted-foreground">{row.email} · {row.phone}</p><p className="mt-1 text-xs text-muted-foreground">{"category" in row ? `${row.category} · ${row.application_code}` : row.service} · {new Date(row.created_at).toLocaleString()}</p></div>
+        <div className="min-w-0"><h3 className="font-bold">{"full_name" in row ? row.full_name : row.name}</h3><p className="break-all text-sm text-muted-foreground">{row.email} · {row.phone}</p><p className="mt-1 text-xs text-muted-foreground">{"category" in row ? `${row.category} · ${row.application_code}` : `${row.ack_number} · ${row.service}`} · {new Date(row.created_at).toLocaleString()}</p></div>
         <div className="flex items-center gap-4"><span className="text-xs font-bold uppercase text-primary">{row.status}</span><Button variant="outline" onClick={() => { setSelected(row); setStatus(row.status as Status); setNotes(row.admin_notes); setMessage(""); }}>Review</Button></div>
       </div>)}
     </div>
