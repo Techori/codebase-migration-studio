@@ -50,6 +50,7 @@ import { Route as ApiPublicStudentProjectIdeasRouteImport } from './routes/api/p
 import { Route as ApiPublicYoungMarketPlanRouteImport } from './routes/api/public/young-market-plan'
 import { Route as ApiPublicEducationActionRouteImport } from './routes/api/public/education.$action'
 import { Route as ApiPublicJobsEducationSheetSyncRouteImport } from './routes/api/public/jobs/education-sheet-sync'
+import { Route as ApiPublicJobsGoogleSheetCopyRouteImport } from './routes/api/public/jobs/google-sheet-copy'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -261,6 +262,12 @@ const ApiPublicJobsEducationSheetSyncRoute =
     path: '/api/public/jobs/education-sheet-sync',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsGoogleSheetCopyRoute =
+  ApiPublicJobsGoogleSheetCopyRouteImport.update({
+    id: '/api/public/jobs/google-sheet-copy',
+    path: '/api/public/jobs/google-sheet-copy',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -304,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/api/public/young-market-plan': typeof ApiPublicYoungMarketPlanRoute
   '/api/public/education/$action': typeof ApiPublicEducationActionRoute
   '/api/public/jobs/education-sheet-sync': typeof ApiPublicJobsEducationSheetSyncRoute
+  '/api/public/jobs/google-sheet-copy': typeof ApiPublicJobsGoogleSheetCopyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -347,6 +355,7 @@ export interface FileRoutesByTo {
   '/api/public/young-market-plan': typeof ApiPublicYoungMarketPlanRoute
   '/api/public/education/$action': typeof ApiPublicEducationActionRoute
   '/api/public/jobs/education-sheet-sync': typeof ApiPublicJobsEducationSheetSyncRoute
+  '/api/public/jobs/google-sheet-copy': typeof ApiPublicJobsGoogleSheetCopyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -391,6 +400,7 @@ export interface FileRoutesById {
   '/api/public/young-market-plan': typeof ApiPublicYoungMarketPlanRoute
   '/api/public/education/$action': typeof ApiPublicEducationActionRoute
   '/api/public/jobs/education-sheet-sync': typeof ApiPublicJobsEducationSheetSyncRoute
+  '/api/public/jobs/google-sheet-copy': typeof ApiPublicJobsGoogleSheetCopyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -436,6 +446,7 @@ export interface FileRouteTypes {
     | '/api/public/young-market-plan'
     | '/api/public/education/$action'
     | '/api/public/jobs/education-sheet-sync'
+    | '/api/public/jobs/google-sheet-copy'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/api/public/young-market-plan'
     | '/api/public/education/$action'
     | '/api/public/jobs/education-sheet-sync'
+    | '/api/public/jobs/google-sheet-copy'
   id:
     | '__root__'
     | '/'
@@ -522,6 +534,7 @@ export interface FileRouteTypes {
     | '/api/public/young-market-plan'
     | '/api/public/education/$action'
     | '/api/public/jobs/education-sheet-sync'
+    | '/api/public/jobs/google-sheet-copy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -566,6 +579,7 @@ export interface RootRouteChildren {
   ApiPublicYoungMarketPlanRoute: typeof ApiPublicYoungMarketPlanRoute
   ApiPublicEducationActionRoute: typeof ApiPublicEducationActionRoute
   ApiPublicJobsEducationSheetSyncRoute: typeof ApiPublicJobsEducationSheetSyncRoute
+  ApiPublicJobsGoogleSheetCopyRoute: typeof ApiPublicJobsGoogleSheetCopyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -857,6 +871,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsEducationSheetSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/google-sheet-copy': {
+      id: '/api/public/jobs/google-sheet-copy'
+      path: '/api/public/jobs/google-sheet-copy'
+      fullPath: '/api/public/jobs/google-sheet-copy'
+      preLoaderRoute: typeof ApiPublicJobsGoogleSheetCopyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -902,6 +923,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicYoungMarketPlanRoute: ApiPublicYoungMarketPlanRoute,
   ApiPublicEducationActionRoute: ApiPublicEducationActionRoute,
   ApiPublicJobsEducationSheetSyncRoute: ApiPublicJobsEducationSheetSyncRoute,
+  ApiPublicJobsGoogleSheetCopyRoute: ApiPublicJobsGoogleSheetCopyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
