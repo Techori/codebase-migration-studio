@@ -64,3 +64,20 @@ export const assignCrmLead=createServerFn({method:'POST'}).middleware([requireSu
  const {data:role}=await context.supabase.rpc('crm_role');if(role!=='admin'&&role!=='BDM')throw new Error('Only an admin or BDM can reassign leads.');
  const {error}=await context.supabase.rpc('crm_assign_lead',{_lead:data.leadId,_owner:data.ownerId as string});if(error)throw new Error('Lead could not be reassigned. Check that the employee is active and in your team.');return {ok:true};
 });
+
+// Acknowledgement details for one Education Support lead. Lead visibility is checked with the caller's own access first;
+// only then are the PDF fields (no contact, bank or Aadhaar data) read from the registration.
+export const crmAcknowledgement=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((v:unknown)=>z.object({leadId:z.string().uuid()}).parse(v)).handler(async({context,data})=>{
+ setResponseHeader('Cache-Control','no-store');
+ const {data:role}=await context.supabase.rpc('crm_role');if(!role)throw new Error('Active CRM access required.');
+ const {data:lead}=await context.supabase.from('crm_leads').select('source,source_id').eq('id',data.leadId).maybeSingle();
+ if(!lead)throw new Error('Lead access denied.');
+ if(lead.source!=='education'||!lead.source_id)throw new Error('This lead has no scholarship acknowledgement.');
+ const {ackSourceColumns,ackDataFromRow}=await import('./education-support/acknowledgement');
+ const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
+ const {data:row,error}=await supabaseAdmin.from('education_support_registrations').select(ackSourceColumns).eq('id',lead.source_id).maybeSingle();
+ if(error||!row)throw new Error('Registration could not be found.');
+ const r=row as unknown as import('./education-support/acknowledgement').AckSourceRow;
+ if(!/^\d{15}$/.test(r.ack_number))throw new Error('Acknowledgement number is issued after the payment ID.');
+ return ackDataFromRow(r);
+});

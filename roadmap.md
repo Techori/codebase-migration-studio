@@ -226,5 +226,6 @@
 - [x] Student AI checklist: non-sensitive application details → personalised list of missing information/documents
 - [x] Automatic background sync: sheet-only responses move to the database once it is available, no reopen or admin button
 - [x] Scholarship: official acknowledgement PDF download right after payment ID; visible in CRM
-- [ ] Admin sign up + /admin login check — blocked: owner must create the first admin account with their own email
+- [ ] Admin sign up + /admin login check — blocked: owner must create the first admin account with their own email (first account becomes permanent admin)
+- [x] CRM lead window: download the scholarship acknowledgement PDF (signed-in check pending until the admin account exists)
 - [x] Login credentials in Google Sheet — declined (unsafe; login cannot work without backend anyway)
