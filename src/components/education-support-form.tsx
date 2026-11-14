@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PaymentOptionButton } from "@/components/payment-option-button";
 import { adminUpdateEducationRegistration, getReferralCoordinator, lookupEducationRegistration, saveEducationProgress, startEducationRegistration, submitEducationPaymentReference, submitEducationRegistration } from "@/lib/education-support.functions";
 import { paymentRequiredBlocker } from "@/lib/education-support/editing";
+import { isTemporaryRegistrationId } from "@/lib/education-support/numbering";
 import { viaHome } from "@/lib/education-support/remote";
 import { applicationTypeKeys, applicationTypes, educationBasicSchema, educationCoreSchema, educationPrivateSchema, eduStepFields, eduStepKeys, firstDetailsStep, isMinor, stepErrors, type ApplicationType, type EducationLookup, type EduStepKey, type StudentCategory } from "@/lib/education-support/rules";
 import { coordinatorTypes, coursesFor, educationSectors, genders, guardianRelationships, indianStates, pgYears, schoolBoards, schoolClasses, schoolTypes, studyModes, ugYears } from "@/lib/education-support/catalog";
