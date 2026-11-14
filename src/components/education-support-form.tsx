@@ -341,7 +341,7 @@ function ReopenPanel({ lang, open, setOpen, onOpened }: { lang: EduLang; open: b
   async function go(e: React.FormEvent) {
     e.preventDefault(); setError(""); setBusy(true);
     const verify = { ackNumber: ack.trim().toUpperCase(), dateOfBirth: dob, state };
-    try { onOpened(await lookup({ data: verify }), verify); }
+    try { const r = await lookup({ data: verify }); onOpened(r, { ...verify, ackNumber: r.ackNumber || verify.ackNumber }); }
     catch (err) { setError(err instanceof Error ? err.message : "Please try again."); }
     finally { setBusy(false); }
   }
