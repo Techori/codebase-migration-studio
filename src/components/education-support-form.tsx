@@ -275,6 +275,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
           <p className="mt-3 text-xs text-edu-paper/75">{!session || isTemporaryRegistrationId(session.verify.ackNumber) ? (lang === "en" ? "Use the same email/mobile on the payment page. Your Registration ID and acknowledgement number are issued after you share the payment ID." : "भुगतान पेज पर वही ईमेल/मोबाइल डालें। पेमेंट आईडी भेजने के बाद आपको पंजीकरण आईडी और पावती संख्या मिलेगी।") : <>{session.registrationId && <>{lang === "en" ? "Registration ID" : "पंजीकरण आईडी"}: {session.registrationId} · </>}{lang === "en" ? "Acknowledgement number" : "पावती संख्या"}: {session.verify.ackNumber}</>}</p>
         </div>
         <PaymentReference key={session?.paymentReference ?? ""} lang={lang} ackNumber={session?.verify.ackNumber ?? ""} getVerify={async () => (await ensureSession()).verify} registrationId={session?.registrationId ?? null} status={paymentStatus} initial={session?.paymentReference ?? ""} onSaved={(ref, ack, regId) => setSession(s => s ? { ...s, paymentStatus: "reference_submitted", paymentReference: ref, registrationId: regId ?? s.registrationId ?? null, verify: ack ? { ...s.verify, ackNumber: ack } : s.verify } : s)} />
+        {session && paymentStatus !== "pending" && !isTemporaryRegistrationId(session.verify.ackNumber) && <AckPdfButton key={session.verify.ackNumber} lang={lang} values={values} done={{ ackNumber: session.verify.ackNumber, registrationId: session.registrationId ?? null, createdAt: session.createdAt, paymentStatus, applicationType: appType }} />}
         <p className="text-xs text-edu-ink/70">{lang === "en" ? "After paying, the payment ID is filled in automatically. If it does not appear, type it in above. You can go to the next step only after the payment ID is shared. Your form is complete only after the final step." : "भुगतान के बाद पेमेंट आईडी अपने आप भर जाएगी। न दिखे तो ऊपर लिख दें। पेमेंट आईडी भेजने के बाद ही आप अगले चरण पर जा सकेंगे। अंतिम चरण के बाद ही फ़ॉर्म पूरा होगा।"}</p>
       </div>}
 
@@ -404,6 +405,26 @@ function PaymentReference({ lang, ackNumber, getVerify, registrationId, status, 
     {state.error && <p role="alert" className="mt-2 text-xs font-semibold text-destructive">{state.error}</p>}
     <p className="mt-2 text-xs text-edu-ink/60">{lang === "en" ? "Find it in the Zoho payment receipt email/SMS after paying." : "भुगतान के बाद Zoho की रसीद ईमेल/SMS में मिलेगी।"}</p>
   </div>;
+}
+
+function AckPdfButton({ lang, values, done }: { lang: EduLang; values: Values; done: Done }) {
+  const [pdfUrl, setPdfUrl] = useState("");
+  useEffect(() => {
+    let url = ""; let cancelled = false;
+    const category = String(values["studentCategory"]);
+    const payStatus = (["pending", "reference_submitted", "paid", "failed"].includes(done.paymentStatus) ? done.paymentStatus : "pending") as "pending";
+    void import("@/lib/education-support/acknowledgement").then(m => m.buildAcknowledgementPdf({
+      ackNumber: done.ackNumber, registrationId: done.registrationId ?? null, studentName: String(values["studentName"]), createdAt: done.createdAt || new Date().toISOString(),
+      category: category === "school" ? "School student" : category === "ug" ? "Undergraduate (UG)" : "Postgraduate (PG)",
+      classOrCourse: category === "school" ? (values["currentClass"] ? `Class ${values["currentClass"]}` : "") : String(values["courseName"] ?? ""), sector: String(values["educationSector"] ?? ""),
+      applicationType: done.applicationType, coordinatorName: values["withoutCoordinator"] ? "" : String(values["coordinatorName"] ?? ""), paymentStatus: payStatus,
+    })).then(blob => { if (cancelled) return; url = URL.createObjectURL(blob); setPdfUrl(url); });
+    return () => { cancelled = true; if (url) URL.revokeObjectURL(url); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return <Button asChild variant="outline" className="h-11 rounded-full border-edu-navy/20 bg-transparent text-edu-navy hover:bg-edu-sky hover:text-edu-navy" disabled={!pdfUrl}>
+    <a href={pdfUrl || undefined} download={`${done.ackNumber}.pdf`} aria-disabled={!pdfUrl}><Download className="h-4 w-4" />{lang === "en" ? "Download official acknowledgement (PDF)" : "आधिकारिक पावती डाउनलोड करें (PDF)"}</a>
+  </Button>;
 }
 
 function RegistrationDone({ lang, done, values, onNew }: { lang: EduLang; done: Done; values: Values; onNew: () => void }) {
