@@ -1,7 +1,7 @@
 ## Move into this project (Nov 2026)
 - [x] Code, images and settings brought in; database rebuilt (31 tables, rules, private file folders)
 - [x] Fresh start chosen by owner — no old records/users imported
-- [ ] Original EDUCATION_KYC_ENCRYPTION_KEY — waiting on the owner (needed for bank/Aadhaar details)
+- [x] New scholarship privacy key created (fresh start, nothing old to decrypt)
 - [x] Google Sheet backup + its every-few-minutes sync (runs once the site is published)
 - [x] All forms copied to fresh Google Sheet "RILOYD Website Data" + documents to Drive folder "RILOYD Website Documents" (database kept)
 - [ ] Zoho Sheet copy — optional, no ready connection; only if owner asks

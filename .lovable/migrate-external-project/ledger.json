@@ -73,8 +73,8 @@
   "capability": "secrets",
   "source": ".env (excluded)",
   "outcome": "migrate",
-  "status": "pending",
-  "next_action": "EDUCATION_KYC_ENCRYPTION_KEY must be the original value to read imported bank/Aadhaar details and to save new ones"
+  "status": "implemented",
+  "next_action": "New EDUCATION_KYC_ENCRYPTION_KEY generated (fresh start); Google keys linked via connectors"
  },
  {
   "capability": "cutover",
