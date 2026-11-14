@@ -259,7 +259,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
         <div className="rounded-2xl bg-edu-navy p-5 text-edu-paper">
           <p className="text-sm font-semibold">{lang === "en" ? applicationTypes[appType].en : applicationTypes[appType].hi} · ₹{applicationTypes[appType].fee}</p>
           {paymentStatus === "pending" && <div className="mt-4"><PaymentOptionButton embed prefill={{ name: String(values["studentName"] ?? ""), email: String(values["email"] ?? ""), mobile: String(values["mobile"] ?? "") }} optionKey={educationPaymentKey(appType)} fallbackLink={applicationTypes[appType].paymentLink} label={lang === "en" ? `Pay ₹${applicationTypes[appType].fee} securely` : `₹${applicationTypes[appType].fee} सुरक्षित रूप से भरें`} className="inline-flex h-11 items-center gap-2 rounded-full bg-edu-paper px-6 text-sm font-black text-edu-navy hover:bg-edu-sky" /></div>}
-          <p className="mt-3 text-xs text-edu-paper/75">{lang === "en" ? `Please mention your Registration ID ${session.verify.ackNumber} and the same email/mobile on the payment page if asked.` : `पूछे जाने पर भुगतान पेज पर अपनी पंजीकरण आईडी ${session.verify.ackNumber} और वही ईमेल/मोबाइल डालें।`}</p>
+          <p className="mt-3 text-xs text-edu-paper/75">{isTemporaryRegistrationId(session.verify.ackNumber) ? (lang === "en" ? `Please mention your Registration ID ${session.verify.ackNumber} and the same email/mobile on the payment page if asked. Your acknowledgement number is issued after you share the payment ID.` : `पूछे जाने पर भुगतान पेज पर अपनी पंजीकरण आईडी ${session.verify.ackNumber} और वही ईमेल/मोबाइल डालें। पेमेंट आईडी भेजने के बाद पावती संख्या मिलेगी।`) : (lang === "en" ? `Acknowledgement number: ${session.verify.ackNumber}` : `पावती संख्या: ${session.verify.ackNumber}`)}</p>
         </div>
         <PaymentReference key={session.paymentReference ?? ""} lang={lang} verify={session.verify} status={paymentStatus} initial={session.paymentReference ?? ""} onSaved={(ref, ack) => setSession({ ...session, paymentStatus: "reference_submitted", paymentReference: ref, verify: ack ? { ...session.verify, ackNumber: ack } : session.verify })} />
         <p className="text-xs text-edu-ink/70">{lang === "en" ? "After paying, the payment ID is filled in automatically. If it does not appear, type it in above. You can go to the next step only after the payment ID is shared. Your form is complete only after the final step." : "भुगतान के बाद पेमेंट आईडी अपने आप भर जाएगी। न दिखे तो ऊपर लिख दें। पेमेंट आईडी भेजने के बाद ही आप अगले चरण पर जा सकेंगे। अंतिम चरण के बाद ही फ़ॉर्म पूरा होगा।"}</p>
@@ -328,7 +328,7 @@ export function EducationSupportForm({ lang, initialCode, adminEdit }: { lang: E
       </div>
       {current.key === "review"
         ? <Button type="button" disabled={sending} onClick={() => void submit()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : isAdmin ? "Save changes" : t("submit")}</Button>
-        : <Button type="button" disabled={sending || paymentMissing} onClick={() => void next()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : current.key === "basic" && !session && !isAdmin ? (lang === "en" ? "Get acknowledgement number" : "पावती संख्या प्राप्त करें") : t("next")}<ArrowRight className="h-4 w-4" /></Button>}
+        : <Button type="button" disabled={sending || paymentMissing} onClick={() => void next()} className="h-11 rounded-full bg-edu-royal px-8 text-edu-paper hover:bg-edu-royal/90">{sending ? t("submitting") : current.key === "basic" && !session && !isAdmin ? (lang === "en" ? "Get Registration ID" : "पावती संख्या प्राप्त करें") : t("next")}<ArrowRight className="h-4 w-4" /></Button>}
     </div>
   </div>;
 }
@@ -345,7 +345,7 @@ function ReopenPanel({ lang, open, setOpen, onOpened }: { lang: EduLang; open: b
     catch (err) { setError(err instanceof Error ? err.message : "Please try again."); }
     finally { setBusy(false); }
   }
-  if (!open) return <button type="button" onClick={() => setOpen(true)} className="mb-5 inline-flex items-center gap-2 rounded-full border border-edu-navy/20 px-4 py-2 text-sm font-bold text-edu-navy hover:bg-edu-sky"><FolderOpen className="h-4 w-4" aria-hidden="true" />{lang === "en" ? "Already have an acknowledgement number? Open your form" : "पावती संख्या है? अपना फ़ॉर्म खोलें"}</button>;
+  if (!open) return <button type="button" onClick={() => setOpen(true)} className="mb-5 inline-flex items-center gap-2 rounded-full border border-edu-navy/20 px-4 py-2 text-sm font-bold text-edu-navy hover:bg-edu-sky"><FolderOpen className="h-4 w-4" aria-hidden="true" />{lang === "en" ? "Already registered? Open your form" : "पावती संख्या है? अपना फ़ॉर्म खोलें"}</button>;
   return <form onSubmit={e => void go(e)} className="mb-6 grid gap-3 rounded-2xl border border-edu-royal/30 bg-edu-sky/60 p-4 sm:grid-cols-3">
     <p className="text-sm font-bold text-edu-navy sm:col-span-3">{lang === "en" ? "Open your registration" : "अपना पंजीकरण खोलें"}</p>
     <label className="text-sm font-semibold text-edu-ink">{lang === "en" ? "Acknowledgement number or Registration ID" : "पावती संख्या या पंजीकरण आईडी"}<input required value={ack} onChange={e => setAck(e.target.value)} maxLength={20} className={inputClass} /></label>
