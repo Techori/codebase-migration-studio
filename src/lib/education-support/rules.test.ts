@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applicationTypes, educationSupportSchema, isMinor, registrationFee, stepErrors, stepFields } from "./rules";
 import { indianStates, pgCourses, ugCourses, educationSectors } from "./catalog";
-import { formatAcknowledgement, stateCodes, canApprove } from './numbering';
+import { formatAcknowledgement, formCodes, isTemporaryRegistrationId, stateCodes, canApprove } from './numbering';
 
 const adult = {
   bankHolder: 'Test Student', bankName: 'Test Bank', bankAccount: '123456789012', bankAccountConfirm: '123456789012', bankIfsc: 'SBIN0001234', aadhaarNumber: '234567890123', kycConsent: true,
@@ -52,8 +52,11 @@ describe("Education Support registration rules", () => {
 });
 
 describe('Acknowledgement and verification rules', () => {
-  it('uses YYMMDD + state + district + five digit global serial', () => expect(formatAcknowledgement('261113', '13', '01', 1)).toBe('261113130100001'));
+  it('uses YYMMDD + state + form + five digit serial', () => expect(formatAcknowledgement('261114', '04', formCodes.scholarship, 1)).toBe('261114040100001'));
+  it('gives each form its own two-digit code', () => expect(formCodes).toEqual({ scholarship: '01', youngInnovators: '02', fundingProgramme: '03', foundation: '04', registration: '05', enquiry: '06' }));
+  it('uses state 00 for forms without a state', () => expect(formatAcknowledgement('261114', '00', formCodes.enquiry, 1)).toBe('261114000600001'));
   it('supports the final serial 99999 and refuses 100000', () => { expect(formatAcknowledgement('261114', '13', '01', 99999)).toBe('261114130199999'); expect(() => formatAcknowledgement('261114', '13', '01', 100000)).toThrow(); });
+  it('treats R-numbers as temporary registration IDs, not acknowledgement numbers', () => { expect(isTemporaryRegistrationId('R261114040001234')).toBe(true); expect(isTemporaryRegistrationId('261114040100001')).toBe(false); });
   it('keeps all 36 state/UT codes in the existing list order', () => { expect(stateCodes[0]).toEqual({ name: 'Andhra Pradesh', code: '01' }); expect(stateCodes[35]).toEqual({ name: 'Puducherry', code: '36' }); });
   it('allows approval only after payment is confirmed', () => { expect(canApprove('paid')).toBe(true); expect(canApprove('reference_submitted')).toBe(false); expect(canApprove('pending')).toBe(false); });
   it('requires full Aadhaar and matching bank details', () => { expect(educationSupportSchema.safeParse({ ...adult, aadhaarNumber: '0123' }).success).toBe(false); expect(educationSupportSchema.safeParse({ ...adult, bankAccountConfirm: '999999999' }).success).toBe(false); });

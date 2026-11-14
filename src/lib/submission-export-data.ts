@@ -19,11 +19,11 @@ export function submissionFields(row: Submission): [string, string][] {
     ["Email", row.email], ["Phone", row.phone], ["Review status", row.status],
     ["Private admin notes", row.admin_notes],
   ];
-  if (!("category" in row)) return [...common, ["Service", row.service], ["Industry", row.industry], ["Message", row.message]];
+  if (!("category" in row)) return [...common, ["Acknowledgement number", row.ack_number], ["Service", row.service], ["Industry", row.industry], ["Message", row.message]];
   const config = registrationConfigs[row.category as RegistrationCategory];
   const labels = new Map(config.sections.flatMap(section => section.fields.map(field => [field.name, field.label] as const)));
   const details = row.details && typeof row.details === "object" && !Array.isArray(row.details) ? row.details : {};
-  return [...common, ["Registration type", config.title], ["Application reference", row.application_code],
+  return [...common, ["Registration type", config.title], ["Acknowledgement number", row.application_code],
     ...Object.entries(details).map(([key, value]): [string, string] => [labels.get(key) ?? key, displayValue(value)]),
     ["Uploaded document", row.document_name ?? ""],
   ];

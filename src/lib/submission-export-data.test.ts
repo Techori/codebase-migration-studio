@@ -6,11 +6,11 @@ const application: Application = {
   status: "new", admin_notes: "Private note", created_at: "2026-10-28T06:00:00Z", document_path: "private/test.pdf", document_name: "resume.pdf",
   coordinator_code: null, coordinator_id: null, drive_file_url: null,
 };
-const enquiry: Enquiry = { id: "enquiry-1", name: "Test Contact", email: "test@example.com", phone: "9876543210", service: "Funding", industry: "Technology", message: '=HYPERLINK("https://example.com")', status: "new", admin_notes: "", created_at: "2026-10-28T06:00:00Z", coordinator_code: null, coordinator_id: null };
+const enquiry: Enquiry = { id: "enquiry-1", name: "Test Contact", email: "test@example.com", phone: "9876543210", service: "Funding", industry: "Technology", message: '=HYPERLINK("https://example.com")', status: "new", admin_notes: "", created_at: "2026-10-28T06:00:00Z", coordinator_code: null, coordinator_id: null, ack_number: "261114000600001" };
 describe("Submission exports", () => {
   it("includes complete registration details and document name without exposing its private path", () => {
     const fields = new Map(submissionFields(application));
-    expect(fields.get("Application reference")).toBe("RIL-26-TEST");
+    expect(fields.get("Acknowledgement number")).toBe("RIL-26-TEST");
     expect(fields.get("Areas I can mentor on")).toBe("Funding ₹10L");
     expect(fields.get("Additional Expertise")).toBe("Strategy, Funding");
     expect(fields.get("Uploaded document")).toBe("resume.pdf");

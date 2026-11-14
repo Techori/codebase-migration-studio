@@ -4,14 +4,14 @@ import { emptyRecord, formFieldKeys, istTimestamp, type FormFieldKey, type Sheet
 
 type Json = Record<string, unknown>;
 export type DbRegistrationRow = {
-  ack_number: string; created_at: string; student_category: string; education: unknown; education_sector: string | null;
+  ack_number: string; registration_id?: string | null; created_at: string; student_category: string; education: unknown; education_sector: string | null;
   student_name: string; father_name: string; mother_name: string; date_of_birth: string; gender: string; nationality: string;
   mobile: string; whatsapp: string | null; email: string; permanent_address: string; current_address: string; state: string; district: string; city: string; pin_code: string;
   guardian_name: string | null; guardian_mobile: string | null; guardian_email: string | null; guardian_relationship: string | null; guardian_consent_at: string | null;
   without_coordinator: boolean; coordinator: unknown; coordinator_code: string | null; application_type: string; registration_fee: number;
   payment_status: string; payment_reference: string | null; receipt_token_hash: string; form_status: string; private_details_ciphertext: string | null; aadhaar_last_four: string | null;
 };
-export const dbRegistrationColumns = "ack_number, created_at, student_category, education, education_sector, student_name, father_name, mother_name, date_of_birth, gender, nationality, mobile, whatsapp, email, permanent_address, current_address, state, district, city, pin_code, guardian_name, guardian_mobile, guardian_email, guardian_relationship, guardian_consent_at, without_coordinator, coordinator, coordinator_code, application_type, registration_fee, payment_status, payment_reference, receipt_token_hash, form_status, private_details_ciphertext, aadhaar_last_four";
+export const dbRegistrationColumns = "ack_number, registration_id, created_at, student_category, education, education_sector, student_name, father_name, mother_name, date_of_birth, gender, nationality, mobile, whatsapp, email, permanent_address, current_address, state, district, city, pin_code, guardian_name, guardian_mobile, guardian_email, guardian_relationship, guardian_consent_at, without_coordinator, coordinator, coordinator_code, application_type, registration_fee, payment_status, payment_reference, receipt_token_hash, form_status, private_details_ciphertext, aadhaar_last_four";
 
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
 

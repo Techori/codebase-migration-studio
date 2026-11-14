@@ -52,7 +52,7 @@ export function BasicContactFields() {
 
 export function useFoundationSubmit(kind: FoundationKind, fieldNames: string[]) {
   const submit = useServerFn(submitFoundationForm);
-  const [state, setState] = useState<{ status: "idle" | "sending" | "sent"; error?: string | undefined }>({ status: "idle" });
+  const [state, setState] = useState<{ status: "idle" | "sending" | "sent"; error?: string | undefined; ackNumber?: string }>({ status: "idle" });
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -62,7 +62,7 @@ export function useFoundationSubmit(kind: FoundationKind, fieldNames: string[]) 
     const parsed = foundationSubmissionSchema.safeParse({ kind, fullName: get("fullName"), email: get("email"), phone: get("phone"), coordinatorCode: get("coordinatorCode"), details, message: get("message") });
     if (!parsed.success) { setState({ status: "idle", error: parsed.error.issues[0]?.message ?? "Please check the form and try again." }); return; }
     setState({ status: "sending" });
-    try { await submit({ data: parsed.data }); setState({ status: "sent" }); }
+    try { const r = await submit({ data: parsed.data }); setState({ status: "sent", ackNumber: r.ackNumber }); }
     catch (error) { setState({ status: "idle", error: error instanceof Error ? error.message : "Something went wrong. Please try again." }); }
   }
   return { state, setState, onSubmit };
@@ -85,7 +85,7 @@ function FoundationFormBody({ kind, onClose }: { kind: Exclude<FoundationKind, "
   const { state, onSubmit } = useFoundationSubmit(kind, fields.map(f => f.name));
   return <>
     <DialogHeader><DialogTitle className="text-2xl font-black text-foundation-green">{foundationKindLabels[kind]}</DialogTitle><DialogDescription className="text-foundation-ink/70">RILOYD Foundation · Fields marked * are required.</DialogDescription></DialogHeader>
-    {state.status === "sent" ? <><FoundationSent text="Your form has reached the RILOYD Foundation team. We will contact you on the email or mobile number you shared." /><Button onClick={onClose} className="w-full rounded-full bg-foundation-green text-foundation-paper hover:bg-foundation-green/90">Close</Button></>
+    {state.status === "sent" ? <><FoundationSent text={`Your form has reached the RILOYD Foundation team. Acknowledgement number: ${state.ackNumber ?? ""}. We will contact you on the email or mobile number you shared.`} /><Button onClick={onClose} className="w-full rounded-full bg-foundation-green text-foundation-paper hover:bg-foundation-green/90">Close</Button></>
       : <form onSubmit={onSubmit} noValidate={false} className="mt-2 grid gap-4 sm:grid-cols-2">
         <BasicContactFields />
         <FoundationFields fields={fields} />

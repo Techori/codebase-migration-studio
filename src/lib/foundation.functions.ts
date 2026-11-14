@@ -16,12 +16,12 @@ export const submitFoundationForm = createServerFn({ method: "POST" })
       coordinatorId = coordinator?.id ?? null;
     }
     const details = data.message ? { ...data.details, message: data.message } : data.details;
-    const { error } = await supabaseAdmin.from("foundation_submissions").insert({
+    const { data: saved, error } = await supabaseAdmin.from("foundation_submissions").insert({
       kind: data.kind, full_name: data.fullName, email: data.email, phone: data.phone,
       details, coordinator_code: code || null, coordinator_id: coordinatorId,
-    });
-    if (error) throw new Error("Your form could not be sent. Please try again.");
-    return { ok: true };
+    }).select("ack_number").single();
+    if (error || !saved) throw new Error("Your form could not be sent. Please try again.");
+    return { ok: true, ackNumber: saved.ack_number };
   });
 
 export const listFoundationSubmissions = createServerFn({ method: "POST" })

@@ -10,10 +10,9 @@ export const registerStudentIdea = createServerFn({ method: "POST" })
     const { limitSubmission } = await import("./submissions.server");
     await limitSubmission(data.guardianEmail);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const applicationCode = `YI26-${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`;
-    const { error } = await supabaseAdmin.from("young_innovators_registrations").insert({ application_code: applicationCode, student_name: data.studentName, school_class: data.schoolClass, city: data.city, guardian_name: data.guardianName, guardian_email: data.guardianEmail, guardian_phone: data.guardianPhone, idea_title: data.ideaTitle, idea: data.idea, guardian_consent: true, fee_amount: studentFee(data.schoolClass), gst_percent: 18 });
-    if (error) throw new Error("Registration could not be saved. Your details are still here; please try again later.");
-    return { applicationCode };
+    const { data: saved, error } = await supabaseAdmin.from("young_innovators_registrations").insert({ student_name: data.studentName, school_class: data.schoolClass, city: data.city, guardian_name: data.guardianName, guardian_email: data.guardianEmail, guardian_phone: data.guardianPhone, idea_title: data.ideaTitle, idea: data.idea, guardian_consent: true, fee_amount: studentFee(data.schoolClass), gst_percent: 18 }).select("application_code").single();
+    if (error || !saved) throw new Error("Registration could not be saved. Your details are still here; please try again later.");
+    return { applicationCode: saved.application_code };
   });
 
 export const listStudentRegistrations = createServerFn({ method: "POST" })
