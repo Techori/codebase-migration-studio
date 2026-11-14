@@ -1205,6 +1205,7 @@ export type Database = {
           details: Json
           document_name: string | null
           document_path: string | null
+          drive_file_url: string | null
           email: string
           full_name: string
           id: string
@@ -1221,6 +1222,7 @@ export type Database = {
           details?: Json
           document_name?: string | null
           document_path?: string | null
+          drive_file_url?: string | null
           email: string
           full_name: string
           id?: string
@@ -1237,6 +1239,7 @@ export type Database = {
           details?: Json
           document_name?: string | null
           document_path?: string | null
+          drive_file_url?: string | null
           email?: string
           full_name?: string
           id?: string
@@ -1252,6 +1255,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sheet_mirror_queue: {
+        Row: {
+          attempts: number
+          id: number
+          kind: string
+          last_error: string
+          queued_at: string
+          row_id: string
+          source_table: string
+        }
+        Insert: {
+          attempts?: number
+          id?: number
+          kind?: string
+          last_error?: string
+          queued_at?: string
+          row_id: string
+          source_table: string
+        }
+        Update: {
+          attempts?: number
+          id?: number
+          kind?: string
+          last_error?: string
+          queued_at?: string
+          row_id?: string
+          source_table?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

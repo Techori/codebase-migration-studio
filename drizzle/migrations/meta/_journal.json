@@ -22,6 +22,13 @@
       "when": 1794636465103,
       "tag": "0002_education_ack_default",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794637211880,
+      "tag": "0003_google_sheet_mirror_queue",
+      "breakpoints": true
     }
   ]
 }
