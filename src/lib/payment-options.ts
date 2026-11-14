@@ -35,12 +35,27 @@ export function isZohoCheckoutUrl(url: string | null | undefined): boolean {
   try { const u = new URL(url); return u.protocol === "https:" && zohoCheckoutHost.test(u.hostname); } catch { return false; }
 }
 
-/** Pre-fills the Zoho Checkout page with the student's name, email and mobile (Zoho's documented page parameters). */
-export function zohoPrefillUrl(url: string, p: { name?: string; email?: string; mobile?: string }): string {
+/** ISO 3166-2:IN two-letter codes Zoho Checkout expects in `billing_state_code` for India. */
+const indiaStateCodes: Record<string, string> = {
+  "Andhra Pradesh": "AP", "Arunachal Pradesh": "AR", "Assam": "AS", "Bihar": "BR", "Chhattisgarh": "CT", "Goa": "GA", "Gujarat": "GJ", "Haryana": "HR",
+  "Himachal Pradesh": "HP", "Jharkhand": "JH", "Karnataka": "KA", "Kerala": "KL", "Madhya Pradesh": "MP", "Maharashtra": "MH", "Manipur": "MN",
+  "Meghalaya": "ML", "Mizoram": "MZ", "Nagaland": "NL", "Odisha": "OR", "Punjab": "PB", "Rajasthan": "RJ", "Sikkim": "SK", "Tamil Nadu": "TN",
+  "Telangana": "TG", "Tripura": "TR", "Uttar Pradesh": "UP", "Uttarakhand": "UT", "West Bengal": "WB", "Andaman and Nicobar Islands": "AN",
+  "Chandigarh": "CH", "Dadra and Nagar Haveli and Daman and Diu": "DH", "Delhi": "DL", "Jammu and Kashmir": "JK", "Ladakh": "LA", "Lakshadweep": "LD", "Puducherry": "PY",
+};
+
+export type ZohoPrefill = { name?: string; email?: string; mobile?: string; street?: string; city?: string; state?: string; zip?: string };
+
+/** Pre-fills the Zoho Checkout page with the student's account details and billing address (Zoho's documented page parameters). */
+export function zohoPrefillUrl(url: string, p: ZohoPrefill): string {
   const u = new URL(url);
   const parts = (p.name ?? "").trim().split(/\s+/).filter(Boolean);
   const set = (k: string, v: string | undefined) => { if (v && v.trim()) u.searchParams.set(k, v.trim()); };
   set("first_name", parts[0]); set("last_name", parts.slice(1).join(" ")); set("email", p.email); set("mobile", p.mobile);
+  set("billing_street", p.street); set("billing_city", p.city); set("billing_zip", p.zip);
+  const stateCode = p.state ? indiaStateCodes[p.state.trim()] : undefined;
+  set("billing_state_code", stateCode);
+  if (stateCode || p.city || p.zip || p.street) set("billing_country_code", "IN");
   return u.toString();
 }
 
