@@ -8,6 +8,13 @@
       "when": 1794636057787,
       "tag": "0000_rebuild_schema_tables_and_access",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794636440025,
+      "tag": "0001_rebuild_functions_triggers_storage",
+      "breakpoints": true
     }
   ]
 }

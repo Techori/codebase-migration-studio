@@ -1353,16 +1353,98 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_import_records: {
+        Args: { _rows: Json; _table: string }
+        Returns: Json
+      }
+      admin_save_employee: {
+        Args: {
+          _code: string
+          _department: string
+          _designation: string
+          _employee_id: string
+          _full_name: string
+          _photo_url: string
+          _status: string
+          _valid_until: string
+        }
+        Returns: undefined
+      }
+      admin_setup_metadata: { Args: never; Returns: Json }
       can_view_people_profiles: { Args: never; Returns: boolean }
+      claim_first_admin: { Args: never; Returns: boolean }
+      consume_form_submission_limit: {
+        Args: { _key_hash: string }
+        Returns: boolean
+      }
+      coordinator_name_for_code: { Args: { _code: string }; Returns: string }
+      coordinator_referral_stats: {
+        Args: never
+        Returns: {
+          coordinator_id: string
+          leads: number
+          submitted: number
+        }[]
+      }
+      crm_assign_lead: {
+        Args: { _lead: string; _owner: string }
+        Returns: undefined
+      }
       crm_can_access: { Args: { _owner: string }; Returns: boolean }
+      crm_create_lead: { Args: { _input: Json }; Returns: string }
+      crm_customer_lookup: { Args: { _reference: string }; Returns: Json }
+      crm_import_submission: {
+        Args: { _id: string; _kind: string; _owner: string }
+        Returns: undefined
+      }
       crm_my_manager: { Args: never; Returns: string }
+      crm_onboard_member: {
+        Args: { _input: Json; _user_id: string }
+        Returns: undefined
+      }
+      crm_owner_for_code: { Args: { _code: string }; Returns: string }
       crm_role: { Args: never; Returns: string }
+      crm_route_submission: {
+        Args: {
+          _acknowledgement: string
+          _amount: number
+          _code: string
+          _company: string
+          _email: string
+          _full_name: string
+          _owner?: string
+          _phone: string
+          _source: string
+          _source_id: string
+          _title: string
+        }
+        Returns: string
+      }
+      crm_submission_lead: {
+        Args: { _kind: string; _owner?: string; r: Json }
+        Returns: string
+      }
+      first_admin_setup_status: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      json_text_list: { Args: { _value: Json }; Returns: string[] }
+      people_profile_safe_text: { Args: { _value: string }; Returns: string }
+      verify_employee: {
+        Args: { _code: string; _employee_id: string }
+        Returns: {
+          department: string
+          designation: string
+          employee_id: string
+          full_name: string
+          photo_url: string
+          status: string
+          valid_until: string
+        }[]
       }
     }
     Enums: {
