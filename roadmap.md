@@ -1,3 +1,10 @@
+## Move into this project (Nov 2026)
+- [x] Code, images and settings brought in; database rebuilt (31 tables, rules, private file folders)
+- [ ] Import existing records and users — waiting on exports from the old project
+- [ ] Original EDUCATION_KYC_ENCRYPTION_KEY — waiting on the owner (needed for bank/Aadhaar details)
+- [ ] Google Sheet backup + its every-few-minutes sync — waiting on Google Sheets connection and sheet ID
+- [ ] After publishing: point the scholarship home address (remote.ts HOME_ORIGIN) at the new site; reconnect riloyd.in
+
 # Roadmap
 
 - [x] Scholarship form: Google Sheet backup with acknowledgement numbers, student/admin editing that can also read from the sheet
