@@ -25,7 +25,10 @@ export function isMirrorTable(value: string): value is MirrorTable {
   return Object.prototype.hasOwnProperty.call(MIRROR_TABS, value);
 }
 
+const LABELS: Record<string, string> = { drive_file_url: "Drive document link" };
+
 export function headerFor(key: string, parent?: string): string {
+  if (!parent && LABELS[key]) return LABELS[key];
   const label = key.replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").trim();
   const nice = label.charAt(0).toUpperCase() + label.slice(1);
   return parent ? `${headerFor(parent)} – ${nice}` : nice;
