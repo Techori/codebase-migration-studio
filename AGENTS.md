@@ -30,7 +30,6 @@ use the editor.
 <!-- LOVABLE:END -->
 
 - This remix starts with an empty Drizzle migration history; create future database changes through the migration tool rather than restoring the source project's copied migrations, so the new database has its own history.
-- The database was rebuilt in drizzle/migrations from the source project's generated types and code because the archive carried no SQL; treat those migrations as the schema of record and change it only with new migrations.
 - First-admin setup uses a verified first-auth-account check and a transaction advisory lock in a restricted RPC; existing admins close setup, so later accounts cannot seize administration.
 - CSV imports use shared allowlisted schemas and an atomic SECURITY INVOKER import RPC with admin RLS; conflicts skip without overwriting and auth/security tables are excluded.
 - Restore files by their owning record at the stored path after server-side admin checks, with explicit replacement consent; account profiles remain separate from public people profiles and access roles.
