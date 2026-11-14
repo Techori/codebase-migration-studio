@@ -3,6 +3,24 @@ import { applicationTypes, paymentStatusLabels, type ApplicationType } from "./r
 // Builds the acknowledgement PDF in the browser; jsPDF loads only when requested.
 export type AckData = { ackNumber: string; studentName: string; createdAt: string; category: string; classOrCourse: string; sector: string; applicationType: ApplicationType; paymentStatus: keyof typeof paymentStatusLabels; coordinatorName: string; registrationId?: string | null };
 
+/** Registration columns the CRM needs to rebuild the acknowledgement PDF (no contact or bank details). */
+export type AckSourceRow = { ack_number: string; registration_id: string | null; created_at: string; student_name: string; student_category: string; current_class: string | null; course_name: string | null; education_sector: string | null; application_type: string; payment_status: string; without_coordinator: boolean; coordinator: unknown };
+export const ackSourceColumns = "ack_number, registration_id, created_at, student_name, student_category, current_class, course_name, education_sector, application_type, payment_status, without_coordinator, coordinator";
+
+/** Same PDF details the student downloads, built from a saved registration row. */
+export function ackDataFromRow(r: AckSourceRow): AckData {
+  const school = r.student_category === "school";
+  const c = (r.coordinator && typeof r.coordinator === "object" ? r.coordinator : {}) as Record<string, unknown>;
+  const pay = (r.payment_status in paymentStatusLabels ? r.payment_status : "pending") as AckData["paymentStatus"];
+  return {
+    ackNumber: r.ack_number, registrationId: r.registration_id, studentName: r.student_name, createdAt: r.created_at,
+    category: school ? "School student" : r.student_category === "ug" ? "Undergraduate (UG)" : "Postgraduate (PG)",
+    classOrCourse: school ? (r.current_class ? `Class ${r.current_class}` : "") : (r.course_name ?? ""),
+    sector: r.education_sector ?? "", applicationType: (r.application_type in applicationTypes ? r.application_type : "scholarship") as ApplicationType,
+    paymentStatus: pay, coordinatorName: r.without_coordinator ? "" : String(c["name"] ?? ""),
+  };
+}
+
 export async function buildAcknowledgementPdf(d: AckData): Promise<Blob> {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "a4" });
