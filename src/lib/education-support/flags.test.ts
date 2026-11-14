@@ -34,6 +34,6 @@ describe("Education Support approval gate", () => {
 });
 
 describe("Acknowledgement number format", () => {
-  it("builds YYMMDD + state + district + 5-digit series", () => expect(formatAcknowledgement("261113", "13", "01", 1)).toBe("261113130100001"));
+  it("builds YYMMDD + state + form + 5-digit series", () => expect(formatAcknowledgement("261113", "13", "01", 1)).toBe("261113130100001"));
   it("rejects series above 99999", () => expect(() => formatAcknowledgement("261113", "13", "01", 100000)).toThrow());
 });

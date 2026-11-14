@@ -142,7 +142,7 @@ export function stepErrors(values: Record<string, unknown>, fields: string[]): R
 export type EducationSupportInput = z.input<typeof educationSupportSchema>;
 
 /** Database numbers (15 digits), earlier SCH- references and Google Sheet backup numbers (B + 15 digits). */
-export const ackNumberPattern = /^(\d{15}|SCH-\d{4}-\d{8}|B\d{15})$/;
+export const ackNumberPattern = /^(\d{15}|SCH-\d{4}-\d{8}|[BR]\d{15})$/;
 
 export const privateFieldKeys = ["bankHolder", "bankName", "bankAccount", "bankAccountConfirm", "bankIfsc", "aadhaarNumber", "kycConsent"] as const;
 const privateMask = { bankHolder: true, bankName: true, bankAccount: true, bankAccountConfirm: true, bankIfsc: true, aadhaarNumber: true, kycConsent: true } as const;
