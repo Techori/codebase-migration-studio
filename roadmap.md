@@ -8,6 +8,9 @@
 - [x] Sample scholarship registrations + CRM leads gone; ack counter unused, first real student gets 00001
 - [ ] After publishing: point the scholarship home address (remote.ts HOME_ORIGIN) at the new site; reconnect riloyd.in
 
+- [ ] Acknowledgement number format: YYMMDD + 2-digit state + 2-digit form + 5-digit serial; all registration forms, separate counter per form, never resets
+- [ ] Acknowledgement number issued only after payment (owner request)
+
 # Roadmap
 
 - [x] Scholarship form: Google Sheet backup with acknowledgement numbers, student/admin editing that can also read from the sheet
