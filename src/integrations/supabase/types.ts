@@ -14,8 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      ack_form_counters: {
+        Row: {
+          form_code: string
+          form_name: string
+          last_serial: number
+        }
+        Insert: {
+          form_code: string
+          form_name: string
+          last_serial?: number
+        }
+        Update: {
+          form_code?: string
+          form_name?: string
+          last_serial?: number
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
+          ack_number: string
           admin_notes: string
           coordinator_code: string | null
           coordinator_id: string | null
@@ -30,6 +49,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          ack_number?: string
           admin_notes?: string
           coordinator_code?: string | null
           coordinator_id?: string | null
@@ -44,6 +64,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          ack_number?: string
           admin_notes?: string
           coordinator_code?: string | null
           coordinator_id?: string | null
@@ -618,6 +639,7 @@ export type Database = {
           private_details_ciphertext: string | null
           receipt_token_hash: string
           registration_fee: number
+          registration_id: string | null
           review_flags: Json
           state: string
           status: string
@@ -680,6 +702,7 @@ export type Database = {
           private_details_ciphertext?: string | null
           receipt_token_hash: string
           registration_fee: number
+          registration_id?: string | null
           review_flags?: Json
           state: string
           status?: string
@@ -742,6 +765,7 @@ export type Database = {
           private_details_ciphertext?: string | null
           receipt_token_hash?: string
           registration_fee?: number
+          registration_id?: string | null
           review_flags?: Json
           state?: string
           status?: string
@@ -845,6 +869,7 @@ export type Database = {
       }
       foundation_submissions: {
         Row: {
+          ack_number: string
           admin_notes: string
           coordinator_code: string | null
           coordinator_id: string | null
@@ -858,6 +883,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          ack_number?: string
           admin_notes?: string
           coordinator_code?: string | null
           coordinator_id?: string | null
@@ -871,6 +897,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          ack_number?: string
           admin_notes?: string
           coordinator_code?: string | null
           coordinator_id?: string | null
@@ -1042,7 +1069,7 @@ export type Database = {
         Insert: {
           admin_notes?: string
           amount_paise: number
-          application_code: string
+          application_code?: string
           coordinator_code?: string | null
           coordinator_id?: string | null
           created_at?: string
@@ -1214,7 +1241,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string
-          application_code: string
+          application_code?: string
           category: string
           coordinator_code?: string | null
           coordinator_id?: string | null
@@ -1328,7 +1355,7 @@ export type Database = {
           submitted_at: string | null
         }
         Insert: {
-          application_code: string
+          application_code?: string
           city: string
           consent_at?: string
           coordinator_code?: string | null
@@ -1386,6 +1413,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ack_state_code: { Args: { _state: string }; Returns: string }
       admin_import_records: {
         Args: { _rows: Json; _table: string }
         Returns: Json
@@ -1464,6 +1492,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      issue_ack_number: {
+        Args: { _form: string; _state: string }
+        Returns: string
       }
       json_text_list: { Args: { _value: Json }; Returns: string[] }
       people_profile_safe_text: { Args: { _value: string }; Returns: string }
