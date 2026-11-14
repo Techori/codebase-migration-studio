@@ -1,15 +1,93 @@
 [
-  {"capability":"code","source":"code archive payment-main.zip (TanStack Start, RILOYD website + admin + CRM)","outcome":"migrate","status":"verified","next_action":"none; typecheck clean, 195 tests pass, 16 main pages load without errors"},
-  {"capability":"schema","source":"generated types.ts + setup-contract baseline (no SQL in archive)","outcome":"migrate","status":"verified","next_action":"31 tables, functions, triggers rebuilt; generated types match the original except internal helpers"},
-  {"capability":"records","source":"previous Cloud database (no export attached)","outcome":"migrate","status":"pending","next_action":"user to supply per-table CSV/JSON exports; import after filtering"},
-  {"capability":"auth identities","source":"previous Cloud auth (admin/staff/CRM users)","outcome":"migrate","status":"pending","next_action":"user to supply users export (ids + emails); moved users verify email and set new password at /reset-password; owner should claim admin first"},
-  {"capability":"authorization","source":"user_roles/has_role, crm_memberships, education_staff_access, can_view_people_profiles","outcome":"migrate","status":"implemented","next_action":"verify admin/CRM tabs once the first admin signs up at /admin"},
-  {"capability":"file bytes","source":"registration-documents, customer-reports, country-logos buckets","outcome":"migrate","status":"pending","next_action":"private buckets created; restore files via admin Restore files after records import"},
-  {"capability":"AI","source":"Lovable AI Gateway","outcome":"preserve","status":"implemented","next_action":"key provisioned automatically; live AI answer not yet exercised"},
-  {"capability":"public endpoints","source":"/api/public/prototype-assessment, student-project-ideas, young-market-plan, education/$action, jobs/education-sheet-sync, sitemap.xml","outcome":"preserve","status":"implemented","next_action":"verify after publish"},
-  {"capability":"external providers","source":"Zoho Checkout links (built in), Zoho summit popup embed, Google Sheets backup","outcome":"preserve","status":"pending","next_action":"Google Sheets connection + EDUCATION_SHEET_ID needed for the scholarship sheet backup"},
-  {"capability":"schedules","source":"education-sheet-sync every few minutes","outcome":"preserve","status":"pending","next_action":"create the schedule once the Google Sheet is connected"},
-  {"capability":"secrets","source":".env (excluded)","outcome":"migrate","status":"pending","next_action":"EDUCATION_KYC_ENCRYPTION_KEY must be the original value to read imported bank/Aadhaar details and to save new ones"},
-  {"capability":"cutover","source":"-","outcome":"pending","status":"pending","next_action":"publish; set HOME_ORIGIN in education-support/remote.ts to the new published address; reconnect riloyd.in and Search Console"},
-  {"capability":"verification","source":"-","outcome":"verify","status":"partial","next_action":"contact form saved + CRM lead created (test rows removed); ack numbers, approval guard checked in database; admin/CRM flows await first admin account"}
+ {
+  "capability": "code",
+  "source": "code archive payment-main.zip (TanStack Start, RILOYD website + admin + CRM)",
+  "outcome": "migrate",
+  "status": "verified",
+  "next_action": "none; typecheck clean, 195 tests pass, 16 main pages load without errors"
+ },
+ {
+  "capability": "schema",
+  "source": "generated types.ts + setup-contract baseline (no SQL in archive)",
+  "outcome": "migrate",
+  "status": "verified",
+  "next_action": "31 tables, functions, triggers rebuilt; generated types match the original except internal helpers"
+ },
+ {
+  "capability": "records",
+  "source": "previous Cloud database (no export attached)",
+  "outcome": "accepted",
+  "status": "accepted",
+  "next_action": "Owner chose a fresh start; no old records imported"
+ },
+ {
+  "capability": "auth identities",
+  "source": "previous Cloud auth (admin/staff/CRM users)",
+  "outcome": "accepted",
+  "status": "accepted",
+  "next_action": "Owner chose a fresh start; everyone signs up again; owner claims admin first at /admin"
+ },
+ {
+  "capability": "authorization",
+  "source": "user_roles/has_role, crm_memberships, education_staff_access, can_view_people_profiles",
+  "outcome": "migrate",
+  "status": "implemented",
+  "next_action": "verify admin/CRM tabs once the first admin signs up at /admin"
+ },
+ {
+  "capability": "file bytes",
+  "source": "registration-documents, customer-reports, country-logos buckets",
+  "outcome": "accepted",
+  "status": "accepted",
+  "next_action": "Fresh start; new uploads also copied to Google Drive folder"
+ },
+ {
+  "capability": "AI",
+  "source": "Lovable AI Gateway",
+  "outcome": "preserve",
+  "status": "implemented",
+  "next_action": "key provisioned automatically; live AI answer not yet exercised"
+ },
+ {
+  "capability": "public endpoints",
+  "source": "/api/public/prototype-assessment, student-project-ideas, young-market-plan, education/$action, jobs/education-sheet-sync, sitemap.xml",
+  "outcome": "preserve",
+  "status": "implemented",
+  "next_action": "verify after publish"
+ },
+ {
+  "capability": "external providers",
+  "source": "Zoho Checkout links (built in), Zoho summit popup embed, Google Sheets backup",
+  "outcome": "preserve",
+  "status": "verified",
+  "next_action": "Google Sheets + Drive connected; new sheet 'RILOYD Website Data' and Drive folder verified with test rows/document (removed)"
+ },
+ {
+  "capability": "schedules",
+  "source": "education-sheet-sync every few minutes",
+  "outcome": "preserve",
+  "status": "implemented",
+  "next_action": "google-sheet-copy and education-sheet-sync every 5 min; run against the published site, so they start after publishing"
+ },
+ {
+  "capability": "secrets",
+  "source": ".env (excluded)",
+  "outcome": "migrate",
+  "status": "pending",
+  "next_action": "EDUCATION_KYC_ENCRYPTION_KEY must be the original value to read imported bank/Aadhaar details and to save new ones"
+ },
+ {
+  "capability": "cutover",
+  "source": "-",
+  "outcome": "pending",
+  "status": "pending",
+  "next_action": "publish; set HOME_ORIGIN in education-support/remote.ts to the new published address; reconnect riloyd.in and Search Console"
+ },
+ {
+  "capability": "verification",
+  "source": "-",
+  "outcome": "verify",
+  "status": "partial",
+  "next_action": "contact form saved + CRM lead created (test rows removed); ack numbers, approval guard checked in database; admin/CRM flows await first admin account"
+ }
 ]

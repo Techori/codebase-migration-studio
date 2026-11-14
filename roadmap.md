@@ -1,10 +1,11 @@
 ## Move into this project (Nov 2026)
 - [x] Code, images and settings brought in; database rebuilt (31 tables, rules, private file folders)
-- [ ] Import existing records and users — waiting on exports from the old project
+- [x] Fresh start chosen by owner — no old records/users imported
 - [ ] Original EDUCATION_KYC_ENCRYPTION_KEY — waiting on the owner (needed for bank/Aadhaar details)
-- [ ] Google Sheet backup + its every-few-minutes sync — waiting on Google Sheets connection and sheet ID
-- [ ] Owner request: keep all data in a fresh Google Sheet + Google Drive (maybe Zoho Sheet too), old sheets removed; wants database removed — waiting on owner decision
-- [ ] Delete the two sample scholarship registrations (261113130100001/0002) + their CRM leads; reset ack counter so the first real student gets 00001
+- [x] Google Sheet backup + its every-few-minutes sync (runs once the site is published)
+- [x] All forms copied to fresh Google Sheet "RILOYD Website Data" + documents to Drive folder "RILOYD Website Documents" (database kept)
+- [ ] Zoho Sheet copy — optional, no ready connection; only if owner asks
+- [x] Sample scholarship registrations + CRM leads gone; ack counter unused, first real student gets 00001
 - [ ] After publishing: point the scholarship home address (remote.ts HOME_ORIGIN) at the new site; reconnect riloyd.in
 
 # Roadmap
