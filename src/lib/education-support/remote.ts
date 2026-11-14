@@ -5,7 +5,7 @@
 /** Published Lovable address of this project. Update if the Lovable URL name changes. */
 export const HOME_ORIGIN = "https://scholar-spark-sponsor-hub.lovable.app";
 /** Backend this project's own builds use. */
-export const HOME_BACKEND_ID = "bsccjowqfsngafbiirxg";
+export const HOME_BACKEND_ID = "vykostodjucrudejdued";
 
 export type EducationAction = "start" | "payment" | "lookup" | "progress" | "submit" | "referral" | "checklist";
 
