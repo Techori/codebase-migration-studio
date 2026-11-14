@@ -14,16 +14,1359 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_submissions: {
+        Row: {
+          admin_notes: string
+          coordinator_code: string | null
+          coordinator_id: string | null
+          created_at: string
+          email: string
+          id: string
+          industry: string
+          message: string
+          name: string
+          phone: string
+          service: string
+          status: string
+        }
+        Insert: {
+          admin_notes?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          industry: string
+          message: string
+          name: string
+          phone: string
+          service: string
+          status?: string
+        }
+        Update: {
+          admin_notes?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          industry?: string
+          message?: string
+          name?: string
+          phone?: string
+          service?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_submissions_coordinator_id_fkey"
+            columns: ["coordinator_id"]
+            isOneToOne: false
+            referencedRelation: "coordinators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coordinators: {
+        Row: {
+          active: boolean
+          city: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          notes: string
+          phone: string
+          referral_code: string
+        }
+        Insert: {
+          active?: boolean
+          city?: string
+          created_at?: string
+          email?: string
+          full_name: string
+          id?: string
+          notes?: string
+          phone?: string
+          referral_code: string
+        }
+        Update: {
+          active?: boolean
+          city?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          notes?: string
+          phone?: string
+          referral_code?: string
+        }
+        Relationships: []
+      }
+      country_logos: {
+        Row: {
+          country: string
+          file_path: string
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          country: string
+          file_path: string
+          theme: string
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          file_path?: string
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      country_programme_fees: {
+        Row: {
+          amount: number | null
+          country: string
+          currency: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          country: string
+          currency: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          country?: string
+          currency?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crm_activities: {
+        Row: {
+          actor_id: string
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          lead_id: string | null
+          owner_id: string
+          ticket_id: string | null
+        }
+        Insert: {
+          actor_id: string
+          body?: string
+          created_at?: string
+          id?: string
+          kind: string
+          lead_id?: string | null
+          owner_id: string
+          ticket_id?: string | null
+        }
+        Update: {
+          actor_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id?: string | null
+          owner_id?: string
+          ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "crm_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_customers: {
+        Row: {
+          acknowledgement: string | null
+          company: string
+          created_at: string
+          customer_code: string
+          email: string
+          full_name: string
+          id: string
+          owner_id: string | null
+          phone: string
+        }
+        Insert: {
+          acknowledgement?: string | null
+          company?: string
+          created_at?: string
+          customer_code?: string
+          email?: string
+          full_name: string
+          id?: string
+          owner_id?: string | null
+          phone?: string
+        }
+        Update: {
+          acknowledgement?: string | null
+          company?: string
+          created_at?: string
+          customer_code?: string
+          email?: string
+          full_name?: string
+          id?: string
+          owner_id?: string | null
+          phone?: string
+        }
+        Relationships: []
+      }
+      crm_employee_profiles: {
+        Row: {
+          designation: string
+          employee_code: string
+          full_name: string
+          joining_date: string
+          phone: string
+          photo_url: string | null
+          user_id: string
+        }
+        Insert: {
+          designation?: string
+          employee_code: string
+          full_name: string
+          joining_date?: string
+          phone?: string
+          photo_url?: string | null
+          user_id: string
+        }
+        Update: {
+          designation?: string
+          employee_code?: string
+          full_name?: string
+          joining_date?: string
+          phone?: string
+          photo_url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_employee_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "crm_memberships"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_id: string
+          id: string
+          next_follow_up: string | null
+          notes: string
+          owner_id: string | null
+          referral_code: string | null
+          source: string
+          source_id: string | null
+          stage: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          customer_id: string
+          id?: string
+          next_follow_up?: string | null
+          notes?: string
+          owner_id?: string | null
+          referral_code?: string | null
+          source?: string
+          source_id?: string | null
+          stage?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_id?: string
+          id?: string
+          next_follow_up?: string | null
+          notes?: string
+          owner_id?: string | null
+          referral_code?: string | null
+          source?: string
+          source_id?: string | null
+          stage?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "crm_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_memberships: {
+        Row: {
+          active: boolean
+          created_at: string
+          manager_id: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          manager_id?: string | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          manager_id?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_memberships_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "crm_memberships"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      crm_targets: {
+        Row: {
+          calls_target: number
+          id: string
+          month: string
+          owner_id: string
+          revenue_target: number
+          wins_target: number
+        }
+        Insert: {
+          calls_target?: number
+          id?: string
+          month: string
+          owner_id: string
+          revenue_target?: number
+          wins_target?: number
+        }
+        Update: {
+          calls_target?: number
+          id?: string
+          month?: string
+          owner_id?: string
+          revenue_target?: number
+          wins_target?: number
+        }
+        Relationships: []
+      }
+      crm_tasks: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          due_date: string
+          id: string
+          owner_id: string
+          priority: string
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          due_date: string
+          id?: string
+          owner_id: string
+          priority?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          due_date?: string
+          id?: string
+          owner_id?: string
+          priority?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tasks_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "crm_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_tickets: {
+        Row: {
+          created_at: string
+          customer_id: string
+          description: string
+          id: string
+          owner_id: string
+          priority: string
+          status: string
+          subject: string
+          ticket_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          description?: string
+          id?: string
+          owner_id: string
+          priority?: string
+          status?: string
+          subject: string
+          ticket_code?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          description?: string
+          id?: string
+          owner_id?: string
+          priority?: string
+          status?: string
+          subject?: string
+          ticket_code?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tickets_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "crm_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_reports: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          publish_date: string
+          report_number: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number
+          id?: string
+          publish_date: string
+          report_number: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          publish_date?: string
+          report_number?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      education_district_codes: {
+        Row: {
+          code: number
+          district_key: string
+          district_name: string
+          state_code: string
+        }
+        Insert: {
+          code: number
+          district_key: string
+          district_name: string
+          state_code: string
+        }
+        Update: {
+          code?: number
+          district_key?: string
+          district_name?: string
+          state_code?: string
+        }
+        Relationships: []
+      }
+      education_staff_access: {
+        Row: {
+          active: boolean
+          created_at: string
+          designation: string
+          manager_id: string | null
+          referral_code: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          designation: string
+          manager_id?: string | null
+          referral_code: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          designation?: string
+          manager_id?: string | null
+          referral_code?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_staff_access_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "education_staff_access"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      education_support_registrations: {
+        Row: {
+          aadhaar_last_four: string | null
+          ack_number: string
+          ai_review: string
+          application_type: string
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          city: string
+          completed_at: string | null
+          coordinator: Json
+          coordinator_code: string | null
+          coordinator_id: string | null
+          course_name: string | null
+          created_at: string
+          current_address: string
+          current_class: string | null
+          date_of_birth: string
+          declarations: Json
+          district: string
+          education: Json
+          education_sector: string | null
+          email: string
+          employee_verification_note: string
+          employee_verified_at: string | null
+          employee_verified_by: string | null
+          father_name: string
+          flags_checked_at: string | null
+          flags_confirm_note: string
+          flags_confirmed_at: string | null
+          flags_confirmed_by: string | null
+          form_status: string
+          gender: string
+          guardian_consent_at: string | null
+          guardian_email: string | null
+          guardian_mobile: string | null
+          guardian_name: string | null
+          guardian_relationship: string | null
+          id: string
+          institution_name: string
+          is_minor: boolean
+          mobile: string
+          mother_name: string
+          nationality: string
+          payment_reference: string | null
+          payment_reference_at: string | null
+          payment_status: string
+          permanent_address: string
+          pin_code: string
+          private_details_ciphertext: string | null
+          receipt_token_hash: string
+          registration_fee: number
+          review_flags: Json
+          state: string
+          status: string
+          status_reason: string
+          student_category: string
+          student_name: string
+          updated_at: string
+          whatsapp: string | null
+          without_coordinator: boolean
+        }
+        Insert: {
+          aadhaar_last_four?: string | null
+          ack_number: string
+          ai_review?: string
+          application_type: string
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          city: string
+          completed_at?: string | null
+          coordinator?: Json
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          course_name?: string | null
+          created_at?: string
+          current_address: string
+          current_class?: string | null
+          date_of_birth: string
+          declarations?: Json
+          district: string
+          education?: Json
+          education_sector?: string | null
+          email: string
+          employee_verification_note?: string
+          employee_verified_at?: string | null
+          employee_verified_by?: string | null
+          father_name: string
+          flags_checked_at?: string | null
+          flags_confirm_note?: string
+          flags_confirmed_at?: string | null
+          flags_confirmed_by?: string | null
+          form_status?: string
+          gender: string
+          guardian_consent_at?: string | null
+          guardian_email?: string | null
+          guardian_mobile?: string | null
+          guardian_name?: string | null
+          guardian_relationship?: string | null
+          id?: string
+          institution_name: string
+          is_minor?: boolean
+          mobile: string
+          mother_name: string
+          nationality: string
+          payment_reference?: string | null
+          payment_reference_at?: string | null
+          payment_status?: string
+          permanent_address: string
+          pin_code: string
+          private_details_ciphertext?: string | null
+          receipt_token_hash: string
+          registration_fee: number
+          review_flags?: Json
+          state: string
+          status?: string
+          status_reason?: string
+          student_category: string
+          student_name: string
+          updated_at?: string
+          whatsapp?: string | null
+          without_coordinator?: boolean
+        }
+        Update: {
+          aadhaar_last_four?: string | null
+          ack_number?: string
+          ai_review?: string
+          application_type?: string
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          city?: string
+          completed_at?: string | null
+          coordinator?: Json
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          course_name?: string | null
+          created_at?: string
+          current_address?: string
+          current_class?: string | null
+          date_of_birth?: string
+          declarations?: Json
+          district?: string
+          education?: Json
+          education_sector?: string | null
+          email?: string
+          employee_verification_note?: string
+          employee_verified_at?: string | null
+          employee_verified_by?: string | null
+          father_name?: string
+          flags_checked_at?: string | null
+          flags_confirm_note?: string
+          flags_confirmed_at?: string | null
+          flags_confirmed_by?: string | null
+          form_status?: string
+          gender?: string
+          guardian_consent_at?: string | null
+          guardian_email?: string | null
+          guardian_mobile?: string | null
+          guardian_name?: string | null
+          guardian_relationship?: string | null
+          id?: string
+          institution_name?: string
+          is_minor?: boolean
+          mobile?: string
+          mother_name?: string
+          nationality?: string
+          payment_reference?: string | null
+          payment_reference_at?: string | null
+          payment_status?: string
+          permanent_address?: string
+          pin_code?: string
+          private_details_ciphertext?: string | null
+          receipt_token_hash?: string
+          registration_fee?: number
+          review_flags?: Json
+          state?: string
+          status?: string
+          status_reason?: string
+          student_category?: string
+          student_name?: string
+          updated_at?: string
+          whatsapp?: string | null
+          without_coordinator?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_support_registrations_coordinator_id_fkey"
+            columns: ["coordinator_id"]
+            isOneToOne: false
+            referencedRelation: "coordinators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_verification_attempts: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: number
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: never
+          success?: boolean
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: never
+          success?: boolean
+        }
+        Relationships: []
+      }
+      employees: {
+        Row: {
+          code_hash: string
+          created_at: string
+          department: string
+          designation: string
+          employee_id: string
+          full_name: string
+          id: string
+          photo_url: string | null
+          status: string
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          department: string
+          designation: string
+          employee_id: string
+          full_name: string
+          id?: string
+          photo_url?: string | null
+          status?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          department?: string
+          designation?: string
+          employee_id?: string
+          full_name?: string
+          id?: string
+          photo_url?: string | null
+          status?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      form_submission_limits: {
+        Row: {
+          attempts: number
+          key_hash: string
+          window_started_at: string
+        }
+        Insert: {
+          attempts?: number
+          key_hash: string
+          window_started_at?: string
+        }
+        Update: {
+          attempts?: number
+          key_hash?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
+      foundation_submissions: {
+        Row: {
+          admin_notes: string
+          coordinator_code: string | null
+          coordinator_id: string | null
+          created_at: string
+          details: Json
+          email: string
+          full_name: string
+          id: string
+          kind: string
+          phone: string
+          status: string
+        }
+        Insert: {
+          admin_notes?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          details?: Json
+          email: string
+          full_name: string
+          id?: string
+          kind: string
+          phone: string
+          status?: string
+        }
+        Update: {
+          admin_notes?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          details?: Json
+          email?: string
+          full_name?: string
+          id?: string
+          kind?: string
+          phone?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "foundation_submissions_coordinator_id_fkey"
+            columns: ["coordinator_id"]
+            isOneToOne: false
+            referencedRelation: "coordinators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_options: {
+        Row: {
+          key: string
+          label: string
+          payment_link: string | null
+          programme: string
+          razorpay_button_id: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          label: string
+          payment_link?: string | null
+          programme: string
+          razorpay_button_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          label?: string
+          payment_link?: string | null
+          programme?: string
+          razorpay_button_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_provider_tokens: {
+        Row: {
+          access_token: string
+          expires_at: string
+          provider: string
+          refresh_token: string | null
+        }
+        Insert: {
+          access_token: string
+          expires_at: string
+          provider: string
+          refresh_token?: string | null
+        }
+        Update: {
+          access_token?: string
+          expires_at?: string
+          provider?: string
+          refresh_token?: string | null
+        }
+        Relationships: []
+      }
+      people_profiles: {
+        Row: {
+          bio: string
+          created_at: string
+          focus: string[]
+          id: string
+          location: string
+          name: string
+          person_group: string
+          photo_url: string | null
+          role: string
+          slug: string
+          sort_order: number
+          source_application_id: string | null
+          summary: string
+        }
+        Insert: {
+          bio?: string
+          created_at?: string
+          focus?: string[]
+          id?: string
+          location?: string
+          name: string
+          person_group: string
+          photo_url?: string | null
+          role?: string
+          slug: string
+          sort_order?: number
+          source_application_id?: string | null
+          summary?: string
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          focus?: string[]
+          id?: string
+          location?: string
+          name?: string
+          person_group?: string
+          photo_url?: string | null
+          role?: string
+          slug?: string
+          sort_order?: number
+          source_application_id?: string | null
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_profiles_source_application_id_fkey"
+            columns: ["source_application_id"]
+            isOneToOne: true
+            referencedRelation: "registration_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string
+          display_name: string
+          id: string
+          preferences: Json
+        }
+        Insert: {
+          avatar_url?: string
+          display_name?: string
+          id: string
+          preferences?: Json
+        }
+        Update: {
+          avatar_url?: string
+          display_name?: string
+          id?: string
+          preferences?: Json
+        }
+        Relationships: []
+      }
+      programme_applications: {
+        Row: {
+          admin_notes: string
+          amount_paise: number
+          application_code: string
+          coordinator_code: string | null
+          coordinator_id: string | null
+          created_at: string
+          details: Json
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          programme: string
+          status: string
+          submission_status: string
+          submitted_at: string | null
+        }
+        Insert: {
+          admin_notes?: string
+          amount_paise: number
+          application_code: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          details?: Json
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          programme: string
+          status?: string
+          submission_status?: string
+          submitted_at?: string | null
+        }
+        Update: {
+          admin_notes?: string
+          amount_paise?: number
+          application_code?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          details?: Json
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          programme?: string
+          status?: string
+          submission_status?: string
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programme_applications_coordinator_id_fkey"
+            columns: ["coordinator_id"]
+            isOneToOne: false
+            referencedRelation: "coordinators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programme_payments: {
+        Row: {
+          amount_paise: number
+          application_id: string | null
+          application_kind: string | null
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string | null
+          payer_email: string
+          payer_name: string
+          payer_phone: string
+          programme: string
+          provider: string
+          provider_payment_id: string | null
+          provider_reference: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          status: string
+        }
+        Insert: {
+          amount_paise: number
+          application_id?: string | null
+          application_kind?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          payer_email: string
+          payer_name: string
+          payer_phone?: string
+          programme?: string
+          provider?: string
+          provider_payment_id?: string | null
+          provider_reference?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          status?: string
+        }
+        Update: {
+          amount_paise?: number
+          application_id?: string | null
+          application_kind?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          payer_email?: string
+          payer_name?: string
+          payer_phone?: string
+          programme?: string
+          provider?: string
+          provider_payment_id?: string | null
+          provider_reference?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      prototype_ai_access_state: {
+        Row: {
+          blocked_at: string
+          message: string
+          model_id: string
+          status_code: number
+        }
+        Insert: {
+          blocked_at?: string
+          message?: string
+          model_id: string
+          status_code: number
+        }
+        Update: {
+          blocked_at?: string
+          message?: string
+          model_id?: string
+          status_code?: number
+        }
+        Relationships: []
+      }
+      prototype_submissions: {
+        Row: {
+          ai_output: string
+          created_at: string
+          eligibility_context: string
+          funding_goal: string
+          id: string
+          idea: string
+          prototype: string
+        }
+        Insert: {
+          ai_output?: string
+          created_at?: string
+          eligibility_context?: string
+          funding_goal?: string
+          id?: string
+          idea: string
+          prototype: string
+        }
+        Update: {
+          ai_output?: string
+          created_at?: string
+          eligibility_context?: string
+          funding_goal?: string
+          id?: string
+          idea?: string
+          prototype?: string
+        }
+        Relationships: []
+      }
+      registration_applications: {
+        Row: {
+          admin_notes: string
+          application_code: string
+          category: string
+          coordinator_code: string | null
+          coordinator_id: string | null
+          created_at: string
+          details: Json
+          document_name: string | null
+          document_path: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          status: string
+        }
+        Insert: {
+          admin_notes?: string
+          application_code: string
+          category: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          details?: Json
+          document_name?: string | null
+          document_path?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          status?: string
+        }
+        Update: {
+          admin_notes?: string
+          application_code?: string
+          category?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          details?: Json
+          document_name?: string | null
+          document_path?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_applications_coordinator_id_fkey"
+            columns: ["coordinator_id"]
+            isOneToOne: false
+            referencedRelation: "coordinators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      young_innovators_registrations: {
+        Row: {
+          application_code: string
+          city: string
+          consent_at: string
+          coordinator_code: string | null
+          coordinator_id: string | null
+          created_at: string
+          fee_amount: number
+          gst_percent: number
+          guardian_consent: boolean
+          guardian_email: string
+          guardian_name: string
+          guardian_phone: string
+          id: string
+          idea: string
+          idea_title: string
+          school_class: number
+          status: string
+          student_name: string
+          submission_status: string
+          submitted_at: string | null
+        }
+        Insert: {
+          application_code: string
+          city: string
+          consent_at?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          fee_amount: number
+          gst_percent?: number
+          guardian_consent: boolean
+          guardian_email: string
+          guardian_name: string
+          guardian_phone: string
+          id?: string
+          idea: string
+          idea_title: string
+          school_class: number
+          status?: string
+          student_name: string
+          submission_status?: string
+          submitted_at?: string | null
+        }
+        Update: {
+          application_code?: string
+          city?: string
+          consent_at?: string
+          coordinator_code?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          fee_amount?: number
+          gst_percent?: number
+          guardian_consent?: boolean
+          guardian_email?: string
+          guardian_name?: string
+          guardian_phone?: string
+          id?: string
+          idea?: string
+          idea_title?: string
+          school_class?: number
+          status?: string
+          student_name?: string
+          submission_status?: string
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "young_innovators_registrations_coordinator_id_fkey"
+            columns: ["coordinator_id"]
+            isOneToOne: false
+            referencedRelation: "coordinators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_view_people_profiles: { Args: never; Returns: boolean }
+      crm_can_access: { Args: { _owner: string }; Returns: boolean }
+      crm_my_manager: { Args: never; Returns: string }
+      crm_role: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +1493,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
